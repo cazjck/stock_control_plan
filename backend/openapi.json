@@ -1,0 +1,7857 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "Stock Control Plan",
+  "description": "Dashboard quản trị rủi ro chứng khoán Việt Nam. CHỈ ĐỌC: không đặt lệnh.",
+  "version": "0.1.0"
+ },
+ "paths": {
+  "/api/health": {
+   "get": {
+    "summary": "Health",
+    "operationId": "health_api_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "type": "object",
+         "title": "Response Health Api Health Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/brokers": {
+   "get": {
+    "summary": "Brokers",
+    "operationId": "brokers_api_brokers_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/BrokerStatus"
+         },
+         "type": "array",
+         "title": "Response Brokers Api Brokers Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/brokers/{name}/auth": {
+   "post": {
+    "summary": "Broker Auth",
+    "description": "Đăng nhập broker (lấy token phiên). Với TCBS cần iOTP; không liên quan tới đặt lệnh.",
+    "operationId": "broker_auth_api_brokers__name__auth_post",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Name"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AuthBody"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SessionInfo"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/accounts": {
+   "get": {
+    "summary": "Accounts",
+    "operationId": "accounts_api_accounts_get",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Account"
+         },
+         "title": "Response Accounts Api Accounts Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/overview": {
+   "get": {
+    "summary": "Overview",
+    "operationId": "overview_api_overview_get",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     },
+     {
+      "name": "refresh",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "default": false,
+       "title": "Refresh"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OverviewResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/positions": {
+   "get": {
+    "summary": "Positions",
+    "operationId": "positions_api_positions_get",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PositionsResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/symbols/{symbol}/chart": {
+   "get": {
+    "summary": "Chart",
+    "operationId": "chart_api_symbols__symbol__chart_get",
+    "parameters": [
+     {
+      "name": "symbol",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Symbol"
+      }
+     },
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     },
+     {
+      "name": "interval",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "$ref": "#/components/schemas/Interval",
+       "default": "1D"
+      }
+     },
+     {
+      "name": "count",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 600,
+       "minimum": 30,
+       "default": 250,
+       "title": "Count"
+      }
+     },
+     {
+      "name": "row",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Row"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/board": {
+   "get": {
+    "summary": "Board",
+    "description": "Bảng giá cho các mã trong danh mục đang chọn.",
+    "operationId": "board_api_board_get",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/BoardResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/board/stream": {
+   "get": {
+    "summary": "Board Stream",
+    "description": "Bảng giá thời gian thực qua Server-Sent Events. Sự kiện: snapshot, quote, index, status.",
+    "operationId": "board_stream_api_board_stream_get",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/margin": {
+   "get": {
+    "summary": "Margin",
+    "operationId": "margin_api_margin_get",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MarginOverview"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/margin/plan": {
+   "get": {
+    "summary": "Margin Plan",
+    "description": "Kế hoạch hạ margin từng tài khoản (mục 5b). Chỉ tính toán, không đặt lệnh.",
+    "operationId": "margin_plan_api_margin_plan_get",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DeleverageOverview"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/scenarios/run": {
+   "post": {
+    "summary": "Scenario Run",
+    "description": "Tính RTT, lãi lỗ, lãi vay sau một kịch bản giả định. POST chỉ vì có thân yêu cầu: không ghi gì, không gọi broker.",
+    "operationId": "scenario_run_api_scenarios_run_post",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ScenarioRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ScenarioResult"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/sizing": {
+   "get": {
+    "summary": "Sizing",
+    "operationId": "sizing_api_sizing_get",
+    "parameters": [
+     {
+      "name": "symbol",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "pattern": "^[A-Za-z0-9]{1,12}$",
+       "title": "Symbol"
+      }
+     },
+     {
+      "name": "price",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "title": "Price"
+      }
+     },
+     {
+      "name": "stop",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "number",
+         "exclusiveMinimum": 0
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Giá cắt lỗ dự kiến; bỏ trống thì tính theo luật",
+       "title": "Stop"
+      },
+      "description": "Giá cắt lỗ dự kiến; bỏ trống thì tính theo luật"
+     },
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SizingPlan"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/alerts": {
+   "get": {
+    "summary": "Alerts",
+    "operationId": "alerts_api_alerts_get",
+    "parameters": [
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": "active",
+       "title": "Status"
+      }
+     },
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/AlertRecord"
+         },
+         "title": "Response Alerts Api Alerts Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/alerts/{alert_id}/ack": {
+   "post": {
+    "summary": "Ack Alert",
+    "operationId": "ack_alert_api_alerts__alert_id__ack_post",
+    "parameters": [
+     {
+      "name": "alert_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Alert Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AlertRecord"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/alerts/{alert_id}/resolve": {
+   "post": {
+    "summary": "Resolve Alert",
+    "operationId": "resolve_alert_api_alerts__alert_id__resolve_post",
+    "parameters": [
+     {
+      "name": "alert_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Alert Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ResolveBody"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AlertRecord"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/plans": {
+   "get": {
+    "summary": "List Plans",
+    "operationId": "list_plans_api_plans_get",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/PositionPlan"
+         },
+         "title": "Response List Plans Api Plans Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/plans/{symbol}": {
+   "put": {
+    "summary": "Put Plan",
+    "operationId": "put_plan_api_plans__symbol__put",
+    "parameters": [
+     {
+      "name": "symbol",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Symbol"
+      }
+     },
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PlanBody"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PositionPlan"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/settings/rules": {
+   "get": {
+    "summary": "Get Rules",
+    "operationId": "get_rules_api_settings_rules_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RulesResponse"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "summary": "Put Rules",
+    "operationId": "put_rules_api_settings_rules_put",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RulesPatch"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RulesResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "summary": "Reset Rules",
+    "operationId": "reset_rules_api_settings_rules_delete",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RulesResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/settings/rule-changes": {
+   "get": {
+    "summary": "Rule Changes",
+    "operationId": "rule_changes_api_settings_rule_changes_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/snapshots": {
+   "get": {
+    "summary": "Snapshots",
+    "operationId": "snapshots_api_snapshots_get",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     },
+     {
+      "name": "days",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 365,
+       "minimum": 1,
+       "default": 30,
+       "title": "Days"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/snapshots/run": {
+   "post": {
+    "summary": "Run Snapshot",
+    "operationId": "run_snapshot_api_snapshots_run_post",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/ledger": {
+   "get": {
+    "summary": "Get Ledger",
+    "operationId": "get_ledger_api_ledger_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LedgerView"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/ledger/accounts": {
+   "post": {
+    "summary": "Create Account",
+    "operationId": "create_account_api_ledger_accounts_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AccountIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LedgerAccount"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/ledger/accounts/{account_id}": {
+   "put": {
+    "summary": "Update Account",
+    "operationId": "update_account_api_ledger_accounts__account_id__put",
+    "parameters": [
+     {
+      "name": "account_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Account Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AccountIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LedgerAccount"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "summary": "Delete Account",
+    "operationId": "delete_account_api_ledger_accounts__account_id__delete",
+    "parameters": [
+     {
+      "name": "account_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Account Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/ledger/accounts/{account_id}/purchases": {
+   "post": {
+    "summary": "Add Purchase",
+    "operationId": "add_purchase_api_ledger_accounts__account_id__purchases_post",
+    "parameters": [
+     {
+      "name": "account_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Account Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PurchaseIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LedgerPosition"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/ledger/positions/{pid}": {
+   "put": {
+    "summary": "Update Position",
+    "operationId": "update_position_api_ledger_positions__pid__put",
+    "parameters": [
+     {
+      "name": "pid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Pid"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PositionIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LedgerPosition"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "summary": "Delete Position",
+    "operationId": "delete_position_api_ledger_positions__pid__delete",
+    "parameters": [
+     {
+      "name": "pid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Pid"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/ledger/accounts/{account_id}/debts": {
+   "post": {
+    "summary": "Add Debt",
+    "operationId": "add_debt_api_ledger_accounts__account_id__debts_post",
+    "parameters": [
+     {
+      "name": "account_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Account Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DebtIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LedgerDebt"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/ledger/debts/{did}": {
+   "put": {
+    "summary": "Update Debt",
+    "operationId": "update_debt_api_ledger_debts__did__put",
+    "parameters": [
+     {
+      "name": "did",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Did"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DebtIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LedgerDebt"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "summary": "Delete Debt",
+    "operationId": "delete_debt_api_ledger_debts__did__delete",
+    "parameters": [
+     {
+      "name": "did",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Did"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/ledger/sync/{broker}": {
+   "post": {
+    "summary": "Sync",
+    "description": "Chép danh mục, tiền, khoản vay và RTT từ broker thật vào sổ. Chỉ đọc từ broker.",
+    "operationId": "sync_api_ledger_sync__broker__post",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Broker"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/lots": {
+   "get": {
+    "summary": "List Lots",
+    "operationId": "list_lots_api_lots_get",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     },
+     {
+      "name": "symbol",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Symbol"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Lot"
+         },
+         "title": "Response List Lots Api Lots Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "summary": "Add Lot",
+    "description": "Ghi một lần mua trong quá khứ (ví dụ đọc từ lịch sử lệnh).\nSổ tổng: chỉ cho tiểu danh mục nhập tay, truyền account là mã tiểu danh mục (vd \"vps\").",
+    "operationId": "add_lot_api_lots_post",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LotIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Lot"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/lots/{lot_id}": {
+   "put": {
+    "summary": "Update Lot",
+    "operationId": "update_lot_api_lots__lot_id__put",
+    "parameters": [
+     {
+      "name": "lot_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Lot Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LotPatch"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Lot"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "summary": "Delete Lot",
+    "operationId": "delete_lot_api_lots__lot_id__delete",
+    "parameters": [
+     {
+      "name": "lot_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Lot Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/rotations": {
+   "get": {
+    "summary": "List Trades",
+    "operationId": "list_trades_api_rotations_get",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     },
+     {
+      "name": "symbol",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Symbol"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/RotationTrade"
+         },
+         "title": "Response List Trades Api Rotations Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "summary": "Add Trade",
+    "description": "Ghi một lần bán hoặc mua lại đã khớp ở công ty chứng khoán.\nSổ tổng: truyền account là mã tiểu danh mục (vd \"vps\") của dòng đang xem.",
+    "operationId": "add_trade_api_rotations_post",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RotationIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RotationTrade"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/rotations/{trade_id}": {
+   "delete": {
+    "summary": "Delete Trade",
+    "operationId": "delete_trade_api_rotations__trade_id__delete",
+    "parameters": [
+     {
+      "name": "trade_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Trade Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/holds": {
+   "get": {
+    "summary": "List Holds",
+    "operationId": "list_holds_api_holds_get",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/HoldDecision"
+         },
+         "title": "Response List Holds Api Holds Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "summary": "Put Hold",
+    "description": "Ghi hoặc sửa quyết định gồng của một dòng. Sổ tổng: account là mã tiểu danh mục của dòng (vd tcbs-…, ssi).",
+    "operationId": "put_hold_api_holds_put",
+    "parameters": [
+     {
+      "name": "broker",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/HoldIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HoldDecision"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/holds/{hold_id}": {
+   "delete": {
+    "summary": "Delete Hold",
+    "operationId": "delete_hold_api_holds__hold_id__delete",
+    "parameters": [
+     {
+      "name": "hold_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Hold Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "Account": {
+    "properties": {
+     "broker": {
+      "type": "string",
+      "title": "Broker"
+     },
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "margin",
+       "normal",
+       "other"
+      ],
+      "title": "Kind",
+      "default": "other"
+     },
+     "custody_code": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Custody Code"
+     },
+     "margin_limit": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Margin Limit"
+     }
+    },
+    "type": "object",
+    "required": [
+     "broker",
+     "id"
+    ],
+    "title": "Account"
+   },
+   "AccountIn": {
+    "properties": {
+     "name": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 60
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "cash": {
+      "anyOf": [
+       {
+        "type": "number",
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cash"
+     },
+     "ratio_kind": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "equity_over_value",
+         "collateral_over_debt"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Kind"
+     },
+     "ratio_pct": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 1000.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Pct"
+     },
+     "initial_pct": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 1000.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Initial Pct"
+     },
+     "maintenance_pct": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 1000.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Maintenance Pct"
+     },
+     "liquidation_pct": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 1000.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Liquidation Pct"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "title": "AccountIn"
+   },
+   "AccountView": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "source": {
+      "type": "string",
+      "enum": [
+       "manual",
+       "sync"
+      ],
+      "title": "Source",
+      "default": "manual"
+     },
+     "source_broker": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source Broker"
+     },
+     "source_account": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source Account"
+     },
+     "cash": {
+      "type": "number",
+      "title": "Cash",
+      "default": 0.0
+     },
+     "ratio_kind": {
+      "type": "string",
+      "enum": [
+       "equity_over_value",
+       "collateral_over_debt"
+      ],
+      "title": "Ratio Kind",
+      "default": "equity_over_value"
+     },
+     "ratio_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Pct"
+     },
+     "ratio_ref_value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Ref Value"
+     },
+     "initial_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Initial Pct"
+     },
+     "maintenance_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Maintenance Pct"
+     },
+     "liquidation_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Liquidation Pct"
+     },
+     "synced_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Synced At"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "positions": {
+      "items": {
+       "$ref": "#/components/schemas/PositionView"
+      },
+      "type": "array",
+      "title": "Positions"
+     },
+     "debts": {
+      "items": {
+       "$ref": "#/components/schemas/LedgerDebt"
+      },
+      "type": "array",
+      "title": "Debts"
+     },
+     "totals": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "type": "object",
+      "title": "Totals"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "positions",
+     "debts",
+     "totals"
+    ],
+    "title": "AccountView"
+   },
+   "AlertRecord": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "key": {
+      "type": "string",
+      "title": "Key"
+     },
+     "rule": {
+      "type": "string",
+      "title": "Rule"
+     },
+     "severity": {
+      "$ref": "#/components/schemas/AlertSeverity"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "message": {
+      "type": "string",
+      "title": "Message"
+     },
+     "symbol": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Symbol"
+     },
+     "data": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Data"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "open",
+       "acked",
+       "cleared",
+       "resolved"
+      ],
+      "title": "Status"
+     },
+     "broker": {
+      "type": "string",
+      "title": "Broker"
+     },
+     "account_id": {
+      "type": "string",
+      "title": "Account Id"
+     },
+     "first_seen": {
+      "type": "string",
+      "format": "date-time",
+      "title": "First Seen"
+     },
+     "last_seen": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Last Seen"
+     },
+     "resolution_note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Resolution Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "key",
+     "rule",
+     "severity",
+     "title",
+     "message",
+     "symbol",
+     "data",
+     "status",
+     "broker",
+     "account_id",
+     "first_seen",
+     "last_seen"
+    ],
+    "title": "AlertRecord"
+   },
+   "AlertSeverity": {
+    "type": "string",
+    "enum": [
+     "info",
+     "warning",
+     "critical"
+    ],
+    "title": "AlertSeverity"
+   },
+   "AssetOverview": {
+    "properties": {
+     "positions_value": {
+      "type": "number",
+      "title": "Positions Value"
+     },
+     "cost_value": {
+      "type": "number",
+      "title": "Cost Value"
+     },
+     "cash": {
+      "type": "number",
+      "title": "Cash"
+     },
+     "debt": {
+      "type": "number",
+      "title": "Debt"
+     },
+     "nav": {
+      "type": "number",
+      "title": "Nav"
+     },
+     "unrealized_pnl": {
+      "type": "number",
+      "title": "Unrealized Pnl"
+     },
+     "unrealized_pnl_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Unrealized Pnl Pct"
+     },
+     "interest_per_day": {
+      "type": "number",
+      "title": "Interest Per Day"
+     },
+     "interest_pct_nav_per_day": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Interest Pct Nav Per Day"
+     }
+    },
+    "type": "object",
+    "required": [
+     "positions_value",
+     "cost_value",
+     "cash",
+     "debt",
+     "nav",
+     "unrealized_pnl",
+     "unrealized_pnl_pct",
+     "interest_per_day",
+     "interest_pct_nav_per_day"
+    ],
+    "title": "AssetOverview"
+   },
+   "AuthBody": {
+    "properties": {
+     "otp": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Otp"
+     }
+    },
+    "type": "object",
+    "title": "AuthBody"
+   },
+   "BoardIndex": {
+    "properties": {
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Value"
+     },
+     "change": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Change"
+     },
+     "change_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Change Pct"
+     }
+    },
+    "type": "object",
+    "required": [
+     "symbol"
+    ],
+    "title": "BoardIndex"
+   },
+   "BoardResponse": {
+    "properties": {
+     "as_of": {
+      "type": "string",
+      "format": "date-time",
+      "title": "As Of"
+     },
+     "source": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source"
+     },
+     "rows": {
+      "items": {
+       "$ref": "#/components/schemas/BoardRow"
+      },
+      "type": "array",
+      "title": "Rows"
+     },
+     "index": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/BoardIndex"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "as_of",
+     "source",
+     "rows"
+    ],
+    "title": "BoardResponse"
+   },
+   "BoardRow": {
+    "properties": {
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "ref": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ref"
+     },
+     "ceil": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ceil"
+     },
+     "floor": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Floor"
+     },
+     "price": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Price"
+     },
+     "change": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Change"
+     },
+     "change_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Change Pct"
+     },
+     "match_qty": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Match Qty"
+     },
+     "total_vol": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Total Vol"
+     },
+     "open": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Open"
+     },
+     "high": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "High"
+     },
+     "low": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Low"
+     },
+     "avg": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Avg"
+     },
+     "bid": {
+      "items": {
+       "$ref": "#/components/schemas/BookLevel"
+      },
+      "type": "array",
+      "title": "Bid",
+      "default": []
+     },
+     "offer": {
+      "items": {
+       "$ref": "#/components/schemas/BookLevel"
+      },
+      "type": "array",
+      "title": "Offer",
+      "default": []
+     },
+     "foreign_buy": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Foreign Buy"
+     },
+     "foreign_sell": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Foreign Sell"
+     },
+     "room": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Room"
+     },
+     "held_qty": {
+      "type": "integer",
+      "title": "Held Qty",
+      "default": 0
+     },
+     "avg_cost": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Avg Cost"
+     },
+     "pnl_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pnl Pct"
+     },
+     "sources": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Sources",
+      "default": []
+     }
+    },
+    "type": "object",
+    "required": [
+     "symbol"
+    ],
+    "title": "BoardRow"
+   },
+   "BookLevel": {
+    "properties": {
+     "price": {
+      "type": "number",
+      "title": "Price"
+     },
+     "qty": {
+      "type": "number",
+      "title": "Qty"
+     }
+    },
+    "type": "object",
+    "required": [
+     "price",
+     "qty"
+    ],
+    "title": "BookLevel"
+   },
+   "BrokerStatus": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "display_name": {
+      "type": "string",
+      "title": "Display Name"
+     },
+     "session": {
+      "$ref": "#/components/schemas/SessionInfo"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "display_name",
+     "session"
+    ],
+    "title": "BrokerStatus"
+   },
+   "DebtIn": {
+    "properties": {
+     "symbol": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 10
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Symbol"
+     },
+     "principal": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Principal"
+     },
+     "remaining_principal": {
+      "anyOf": [
+       {
+        "type": "number",
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Remaining Principal"
+     },
+     "accrued_interest": {
+      "anyOf": [
+       {
+        "type": "number",
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Accrued Interest"
+     },
+     "annual_rate_pct": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 100.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Annual Rate Pct"
+     },
+     "disbursement_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Disbursement Date"
+     },
+     "due_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Due Date"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 500
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "title": "DebtIn"
+   },
+   "DeleverageOverview": {
+    "properties": {
+     "plans": {
+      "items": {
+       "$ref": "#/components/schemas/DeleveragePlan"
+      },
+      "type": "array",
+      "title": "Plans"
+     },
+     "total_debt": {
+      "type": "number",
+      "title": "Total Debt"
+     },
+     "interest_per_day": {
+      "type": "number",
+      "title": "Interest Per Day"
+     },
+     "interest_after_safe": {
+      "type": "number",
+      "title": "Interest After Safe"
+     },
+     "safe_sell_value": {
+      "type": "number",
+      "title": "Safe Sell Value"
+     },
+     "safe_proceeds": {
+      "type": "number",
+      "title": "Safe Proceeds"
+     },
+     "accounts_unsafe": {
+      "type": "integer",
+      "title": "Accounts Unsafe"
+     },
+     "deferred_sell_value": {
+      "type": "number",
+      "title": "Deferred Sell Value",
+      "default": 0.0
+     }
+    },
+    "type": "object",
+    "required": [
+     "plans",
+     "total_debt",
+     "interest_per_day",
+     "interest_after_safe",
+     "safe_sell_value",
+     "safe_proceeds",
+     "accounts_unsafe"
+    ],
+    "title": "DeleverageOverview"
+   },
+   "DeleveragePlan": {
+    "properties": {
+     "bucket_id": {
+      "type": "string",
+      "title": "Bucket Id"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "source": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source"
+     },
+     "ratio_kind": {
+      "type": "string",
+      "title": "Ratio Kind"
+     },
+     "ratio_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Pct"
+     },
+     "maintenance_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Maintenance Pct"
+     },
+     "liquidation_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Liquidation Pct"
+     },
+     "target_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Target Pct"
+     },
+     "zone": {
+      "type": "string",
+      "title": "Zone"
+     },
+     "market_value": {
+      "type": "number",
+      "title": "Market Value"
+     },
+     "debt": {
+      "type": "number",
+      "title": "Debt"
+     },
+     "interest_per_day": {
+      "type": "number",
+      "title": "Interest Per Day"
+     },
+     "cash_alternative": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cash Alternative"
+     },
+     "safe_steps": {
+      "items": {
+       "$ref": "#/components/schemas/DeleverageStep"
+      },
+      "type": "array",
+      "title": "Safe Steps",
+      "default": []
+     },
+     "safe_ratio_after": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Safe Ratio After"
+     },
+     "safe_debt_after": {
+      "type": "number",
+      "title": "Safe Debt After",
+      "default": 0.0
+     },
+     "safe_interest_after": {
+      "type": "number",
+      "title": "Safe Interest After",
+      "default": 0.0
+     },
+     "safe_reached": {
+      "type": "boolean",
+      "title": "Safe Reached",
+      "default": false
+     },
+     "committed_ratio_after": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Committed Ratio After"
+     },
+     "committed_interest_after": {
+      "type": "number",
+      "title": "Committed Interest After",
+      "default": 0.0
+     },
+     "deferred_symbols": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Deferred Symbols",
+      "default": []
+     },
+     "zero_steps": {
+      "items": {
+       "$ref": "#/components/schemas/DeleverageStep"
+      },
+      "type": "array",
+      "title": "Zero Steps",
+      "default": []
+     },
+     "zero_shortfall": {
+      "type": "number",
+      "title": "Zero Shortfall",
+      "default": 0.0
+     },
+     "zero_interest_saved": {
+      "type": "number",
+      "title": "Zero Interest Saved",
+      "default": 0.0
+     },
+     "due_30d_amount": {
+      "type": "number",
+      "title": "Due 30D Amount",
+      "default": 0.0
+     },
+     "due_30d_first": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Due 30D First"
+     },
+     "due_30d_count": {
+      "type": "integer",
+      "title": "Due 30D Count",
+      "default": 0
+     },
+     "headline": {
+      "type": "string",
+      "title": "Headline",
+      "default": ""
+     },
+     "notes": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Notes",
+      "default": []
+     }
+    },
+    "type": "object",
+    "required": [
+     "bucket_id",
+     "label",
+     "ratio_kind",
+     "ratio_pct",
+     "maintenance_pct",
+     "liquidation_pct",
+     "target_pct",
+     "zone",
+     "market_value",
+     "debt",
+     "interest_per_day",
+     "cash_alternative"
+    ],
+    "title": "DeleveragePlan",
+    "description": "Lộ trình hạ margin của một tài khoản ký quỹ (mục 5b)."
+   },
+   "DeleverageStep": {
+    "properties": {
+     "kind": {
+      "type": "string",
+      "enum": [
+       "lot_rule",
+       "stop",
+       "group_b",
+       "rotation",
+       "worst_loss",
+       "to_zero"
+      ],
+      "title": "Kind"
+     },
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "row_id": {
+      "type": "string",
+      "title": "Row Id"
+     },
+     "quantity": {
+      "type": "integer",
+      "title": "Quantity"
+     },
+     "price": {
+      "type": "number",
+      "title": "Price"
+     },
+     "proceeds": {
+      "type": "number",
+      "title": "Proceeds"
+     },
+     "reason": {
+      "type": "string",
+      "title": "Reason"
+     },
+     "ratio_after": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio After"
+     },
+     "debt_after": {
+      "type": "number",
+      "title": "Debt After"
+     },
+     "interest_per_day_after": {
+      "type": "number",
+      "title": "Interest Per Day After"
+     },
+     "reaches_target": {
+      "type": "boolean",
+      "title": "Reaches Target",
+      "default": false
+     },
+     "deferred": {
+      "type": "boolean",
+      "title": "Deferred",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "kind",
+     "symbol",
+     "row_id",
+     "quantity",
+     "price",
+     "proceeds",
+     "reason",
+     "ratio_after",
+     "debt_after",
+     "interest_per_day_after"
+    ],
+    "title": "DeleverageStep",
+    "description": "Một bước bán để hạ nợ margin. Chỉ là khuyến nghị; người dùng tự đặt lệnh."
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "HoldDecision": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "broker": {
+      "type": "string",
+      "title": "Broker"
+     },
+     "account_id": {
+      "type": "string",
+      "title": "Account Id"
+     },
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "decided_at": {
+      "type": "string",
+      "format": "date",
+      "title": "Decided At"
+     },
+     "exit_close_below": {
+      "type": "number",
+      "title": "Exit Close Below"
+     },
+     "ratio_floor_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Floor Pct"
+     },
+     "review_on": {
+      "type": "string",
+      "format": "date",
+      "title": "Review On"
+     },
+     "reason": {
+      "type": "string",
+      "title": "Reason"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "broker",
+     "account_id",
+     "symbol",
+     "decided_at",
+     "exit_close_below",
+     "ratio_floor_pct",
+     "review_on",
+     "reason"
+    ],
+    "title": "HoldDecision",
+    "description": "Quyết định gồng có kế hoạch (mục 6c): người dùng chọn giữ mã lỗ, kèm ngưỡng thoát cứng."
+   },
+   "HoldIn": {
+    "properties": {
+     "symbol": {
+      "type": "string",
+      "maxLength": 10,
+      "minLength": 2,
+      "title": "Symbol"
+     },
+     "exit_close_below": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exit Close Below"
+     },
+     "ratio_floor_pct": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMaximum": 1000.0,
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Floor Pct"
+     },
+     "review_on": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Review On"
+     },
+     "reason": {
+      "type": "string",
+      "maxLength": 500,
+      "minLength": 10,
+      "title": "Reason"
+     }
+    },
+    "type": "object",
+    "required": [
+     "symbol",
+     "reason"
+    ],
+    "title": "HoldIn"
+   },
+   "HoldStatus": {
+    "properties": {
+     "decision": {
+      "$ref": "#/components/schemas/HoldDecision"
+     },
+     "state": {
+      "type": "string",
+      "enum": [
+       "holding",
+       "restructure",
+       "review",
+       "exit_margin",
+       "exit_price"
+      ],
+      "title": "State"
+     },
+     "text": {
+      "type": "string",
+      "title": "Text"
+     },
+     "days_held": {
+      "type": "integer",
+      "title": "Days Held"
+     },
+     "interest_cost": {
+      "type": "number",
+      "title": "Interest Cost"
+     },
+     "interest_per_day": {
+      "type": "number",
+      "title": "Interest Per Day"
+     },
+     "distance_to_exit_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distance To Exit Pct"
+     },
+     "ratio_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Pct"
+     },
+     "ratio_floor_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Floor Pct"
+     }
+    },
+    "type": "object",
+    "required": [
+     "decision",
+     "state",
+     "text",
+     "days_held",
+     "interest_cost",
+     "interest_per_day",
+     "distance_to_exit_pct",
+     "ratio_pct",
+     "ratio_floor_pct"
+    ],
+    "title": "HoldStatus"
+   },
+   "Indicators": {
+    "properties": {
+     "close": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Close"
+     },
+     "sma20": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sma20"
+     },
+     "sma50": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sma50"
+     },
+     "ema20": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ema20"
+     },
+     "rsi14": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Rsi14"
+     },
+     "atr14": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Atr14"
+     },
+     "atr14_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Atr14 Pct"
+     },
+     "atr22": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Atr22"
+     },
+     "macd": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Macd"
+     },
+     "macd_signal": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Macd Signal"
+     },
+     "macd_hist": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Macd Hist"
+     },
+     "high20": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "High20"
+     },
+     "low20": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Low20"
+     },
+     "volume_ratio": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Volume Ratio"
+     },
+     "close_vs_sma20_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Close Vs Sma20 Pct"
+     }
+    },
+    "type": "object",
+    "title": "Indicators"
+   },
+   "Interval": {
+    "type": "string",
+    "enum": [
+     "15m",
+     "1h",
+     "1D",
+     "1W"
+    ],
+    "title": "Interval"
+   },
+   "LadderStatus": {
+    "properties": {
+     "gain_pct": {
+      "type": "number",
+      "title": "Gain Pct"
+     },
+     "sell_pct": {
+      "type": "number",
+      "title": "Sell Pct"
+     },
+     "stop_at_gain_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stop At Gain Pct"
+     },
+     "reached": {
+      "type": "boolean",
+      "title": "Reached"
+     },
+     "executed": {
+      "type": "boolean",
+      "title": "Executed"
+     },
+     "suspended": {
+      "type": "boolean",
+      "title": "Suspended",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "gain_pct",
+     "sell_pct",
+     "stop_at_gain_pct",
+     "reached",
+     "executed"
+    ],
+    "title": "LadderStatus"
+   },
+   "LedgerAccount": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "source": {
+      "type": "string",
+      "enum": [
+       "manual",
+       "sync"
+      ],
+      "title": "Source",
+      "default": "manual"
+     },
+     "source_broker": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source Broker"
+     },
+     "source_account": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source Account"
+     },
+     "cash": {
+      "type": "number",
+      "title": "Cash",
+      "default": 0.0
+     },
+     "ratio_kind": {
+      "type": "string",
+      "enum": [
+       "equity_over_value",
+       "collateral_over_debt"
+      ],
+      "title": "Ratio Kind",
+      "default": "equity_over_value"
+     },
+     "ratio_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Pct"
+     },
+     "ratio_ref_value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Ref Value"
+     },
+     "initial_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Initial Pct"
+     },
+     "maintenance_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Maintenance Pct"
+     },
+     "liquidation_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Liquidation Pct"
+     },
+     "synced_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Synced At"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name"
+    ],
+    "title": "LedgerAccount",
+    "description": "Một tiểu danh mục trong sổ tổng: SSI, VPS nhập tay, hoặc bản chép từ TCBS."
+   },
+   "LedgerDebt": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "account_id": {
+      "type": "string",
+      "title": "Account Id"
+     },
+     "symbol": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Symbol"
+     },
+     "principal": {
+      "type": "number",
+      "title": "Principal"
+     },
+     "remaining_principal": {
+      "type": "number",
+      "title": "Remaining Principal"
+     },
+     "accrued_interest": {
+      "type": "number",
+      "title": "Accrued Interest",
+      "default": 0.0
+     },
+     "annual_rate_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Annual Rate Pct"
+     },
+     "disbursement_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Disbursement Date"
+     },
+     "due_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Due Date"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "account_id",
+     "principal",
+     "remaining_principal"
+    ],
+    "title": "LedgerDebt"
+   },
+   "LedgerPosition": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "account_id": {
+      "type": "string",
+      "title": "Account Id"
+     },
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "quantity": {
+      "type": "integer",
+      "title": "Quantity"
+     },
+     "avg_cost": {
+      "type": "number",
+      "title": "Avg Cost"
+     },
+     "last_price": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Price"
+     },
+     "bought_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Bought At"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "account_id",
+     "symbol",
+     "quantity",
+     "avg_cost"
+    ],
+    "title": "LedgerPosition"
+   },
+   "LedgerView": {
+    "properties": {
+     "accounts": {
+      "items": {
+       "$ref": "#/components/schemas/AccountView"
+      },
+      "type": "array",
+      "title": "Accounts"
+     },
+     "price_source": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Price Source"
+     },
+     "totals": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "type": "object",
+      "title": "Totals"
+     }
+    },
+    "type": "object",
+    "required": [
+     "accounts",
+     "price_source",
+     "totals"
+    ],
+    "title": "LedgerView"
+   },
+   "LoanDetail": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "symbol": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Symbol"
+     },
+     "source": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source"
+     },
+     "disbursement_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Disbursement Date"
+     },
+     "due_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Due Date"
+     },
+     "principal": {
+      "type": "number",
+      "title": "Principal",
+      "default": 0.0
+     },
+     "remaining_principal": {
+      "type": "number",
+      "title": "Remaining Principal",
+      "default": 0.0
+     },
+     "accrued_interest": {
+      "type": "number",
+      "title": "Accrued Interest",
+      "default": 0.0
+     },
+     "annual_rate_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Annual Rate Pct"
+     },
+     "days_borrowed": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Days Borrowed"
+     },
+     "days_to_due": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Days To Due"
+     },
+     "interest_per_day": {
+      "type": "number",
+      "title": "Interest Per Day",
+      "default": 0.0
+     },
+     "interest_to_maturity": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Interest To Maturity"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id"
+    ],
+    "title": "LoanDetail"
+   },
+   "LoanStats": {
+    "properties": {
+     "source": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source"
+     },
+     "count": {
+      "type": "integer",
+      "title": "Count"
+     },
+     "principal_disbursed": {
+      "type": "number",
+      "title": "Principal Disbursed"
+     },
+     "principal_paid": {
+      "type": "number",
+      "title": "Principal Paid"
+     },
+     "principal_remaining": {
+      "type": "number",
+      "title": "Principal Remaining"
+     },
+     "accrued_interest": {
+      "type": "number",
+      "title": "Accrued Interest"
+     },
+     "payoff_today": {
+      "type": "number",
+      "title": "Payoff Today"
+     },
+     "interest_per_day": {
+      "type": "number",
+      "title": "Interest Per Day"
+     },
+     "interest_per_month": {
+      "type": "number",
+      "title": "Interest Per Month"
+     },
+     "interest_per_year": {
+      "type": "number",
+      "title": "Interest Per Year"
+     },
+     "avg_rate_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Avg Rate Pct"
+     },
+     "interest_to_maturity": {
+      "type": "number",
+      "title": "Interest To Maturity"
+     },
+     "loans_without_due_date": {
+      "type": "integer",
+      "title": "Loans Without Due Date",
+      "default": 0
+     },
+     "avg_days_borrowed": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Avg Days Borrowed"
+     },
+     "next_due_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Due Date"
+     },
+     "next_due_amount": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Due Amount"
+     }
+    },
+    "type": "object",
+    "required": [
+     "count",
+     "principal_disbursed",
+     "principal_paid",
+     "principal_remaining",
+     "accrued_interest",
+     "payoff_today",
+     "interest_per_day",
+     "interest_per_month",
+     "interest_per_year",
+     "avg_rate_pct",
+     "interest_to_maturity"
+    ],
+    "title": "LoanStats",
+    "description": "Số liệu nợ và lãi cho một nhóm khoản vay (toàn bộ, hoặc một nguồn như TCBS, SSI)."
+   },
+   "Lot": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "broker": {
+      "type": "string",
+      "title": "Broker"
+     },
+     "account_id": {
+      "type": "string",
+      "title": "Account Id"
+     },
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "buy_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Buy Date"
+     },
+     "quantity": {
+      "type": "integer",
+      "title": "Quantity"
+     },
+     "remaining": {
+      "type": "integer",
+      "title": "Remaining"
+     },
+     "price": {
+      "type": "number",
+      "title": "Price"
+     },
+     "source": {
+      "type": "string",
+      "enum": [
+       "auto",
+       "manual",
+       "ledger"
+      ],
+      "title": "Source"
+     },
+     "add_on_loss": {
+      "type": "boolean",
+      "title": "Add On Loss"
+     },
+     "stop_price": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stop Price"
+     },
+     "trigger_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trigger Date"
+     },
+     "trigger_price": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trigger Price"
+     },
+     "estimated": {
+      "type": "boolean",
+      "title": "Estimated",
+      "default": false
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "broker",
+     "account_id",
+     "symbol",
+     "buy_date",
+     "quantity",
+     "remaining",
+     "price",
+     "source",
+     "add_on_loss"
+    ],
+    "title": "Lot",
+    "description": "Một lần mua của một mã. Nguồn: tự phát hiện khi khối lượng tăng, nhập tay, hoặc lệnh mua ghi trong sổ."
+   },
+   "LotEval": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "broker": {
+      "type": "string",
+      "title": "Broker"
+     },
+     "account_id": {
+      "type": "string",
+      "title": "Account Id"
+     },
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "buy_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Buy Date"
+     },
+     "quantity": {
+      "type": "integer",
+      "title": "Quantity"
+     },
+     "remaining": {
+      "type": "integer",
+      "title": "Remaining"
+     },
+     "price": {
+      "type": "number",
+      "title": "Price"
+     },
+     "source": {
+      "type": "string",
+      "enum": [
+       "auto",
+       "manual",
+       "ledger"
+      ],
+      "title": "Source"
+     },
+     "add_on_loss": {
+      "type": "boolean",
+      "title": "Add On Loss"
+     },
+     "stop_price": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stop Price"
+     },
+     "trigger_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trigger Date"
+     },
+     "trigger_price": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trigger Price"
+     },
+     "estimated": {
+      "type": "boolean",
+      "title": "Estimated",
+      "default": false
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "source_label": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source Label"
+     },
+     "current_price": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Current Price"
+     },
+     "pnl_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pnl Pct"
+     },
+     "pnl_value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pnl Value"
+     },
+     "sessions_held": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sessions Held"
+     },
+     "sellable_from": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sellable From"
+     },
+     "sellable": {
+      "type": "boolean",
+      "title": "Sellable",
+      "default": false
+     },
+     "deadline": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Deadline"
+     },
+     "rule_status": {
+      "type": "string",
+      "enum": [
+       "ok",
+       "stop",
+       "time",
+       "closed",
+       "info"
+      ],
+      "title": "Rule Status",
+      "default": "info"
+     },
+     "action": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Action"
+     },
+     "delay_sessions": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Delay Sessions"
+     },
+     "delay_cost": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Delay Cost"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "broker",
+     "account_id",
+     "symbol",
+     "buy_date",
+     "quantity",
+     "remaining",
+     "price",
+     "source",
+     "add_on_loss"
+    ],
+    "title": "LotEval"
+   },
+   "LotIn": {
+    "properties": {
+     "symbol": {
+      "type": "string",
+      "maxLength": 10,
+      "minLength": 2,
+      "title": "Symbol"
+     },
+     "buy_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Buy Date"
+     },
+     "quantity": {
+      "type": "integer",
+      "exclusiveMinimum": 0.0,
+      "title": "Quantity"
+     },
+     "price": {
+      "type": "number",
+      "exclusiveMinimum": 0.0,
+      "title": "Price"
+     },
+     "add_on_loss": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Add On Loss"
+     },
+     "stop_price": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stop Price"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 300
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "symbol",
+     "buy_date",
+     "quantity",
+     "price"
+    ],
+    "title": "LotIn"
+   },
+   "LotPatch": {
+    "properties": {
+     "stop_price": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stop Price"
+     },
+     "add_on_loss": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Add On Loss"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 300
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "buy_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Buy Date"
+     },
+     "price": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Price"
+     },
+     "quantity": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Quantity"
+     }
+    },
+    "type": "object",
+    "title": "LotPatch"
+   },
+   "MarginBucket": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "scope": {
+      "type": "string",
+      "enum": [
+       "account",
+       "deal"
+      ],
+      "title": "Scope"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "symbols": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Symbols",
+      "default": []
+     },
+     "ratio_kind": {
+      "type": "string",
+      "enum": [
+       "equity_over_value",
+       "collateral_over_debt"
+      ],
+      "title": "Ratio Kind",
+      "default": "equity_over_value"
+     },
+     "ratio_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Pct"
+     },
+     "initial_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Initial Pct"
+     },
+     "maintenance_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Maintenance Pct"
+     },
+     "liquidation_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Liquidation Pct"
+     },
+     "market_value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Market Value"
+     },
+     "debt": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Debt"
+     },
+     "status_text": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status Text"
+     },
+     "source": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source"
+     },
+     "raw": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Raw",
+      "default": {}
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "scope",
+     "label"
+    ],
+    "title": "MarginBucket",
+    "description": "Một nhóm ký quỹ. TCBS trả 1 bucket cho cả tài khoản, DNSE trả 1 bucket cho mỗi Deal."
+   },
+   "MarginMetrics": {
+    "properties": {
+     "bucket": {
+      "$ref": "#/components/schemas/MarginBucket"
+     },
+     "drop_to_maintenance_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Drop To Maintenance Pct"
+     },
+     "drop_to_liquidation_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Drop To Liquidation Pct"
+     },
+     "cash_to_safe": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cash To Safe"
+     },
+     "safe_target_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Safe Target Pct"
+     },
+     "zone": {
+      "type": "string",
+      "enum": [
+       "safe",
+       "watch",
+       "danger",
+       "breach",
+       "unknown"
+      ],
+      "title": "Zone"
+     }
+    },
+    "type": "object",
+    "required": [
+     "bucket",
+     "drop_to_maintenance_pct",
+     "drop_to_liquidation_pct",
+     "cash_to_safe",
+     "safe_target_pct",
+     "zone"
+    ],
+    "title": "MarginMetrics"
+   },
+   "MarginOverview": {
+    "properties": {
+     "buckets": {
+      "items": {
+       "$ref": "#/components/schemas/MarginMetrics"
+      },
+      "type": "array",
+      "title": "Buckets"
+     },
+     "loans": {
+      "items": {
+       "$ref": "#/components/schemas/LoanDetail"
+      },
+      "type": "array",
+      "title": "Loans"
+     },
+     "maturity": {
+      "items": {
+       "$ref": "#/components/schemas/MaturityBucket"
+      },
+      "type": "array",
+      "title": "Maturity"
+     },
+     "total_debt": {
+      "type": "number",
+      "title": "Total Debt"
+     },
+     "interest_per_day": {
+      "type": "number",
+      "title": "Interest Per Day"
+     },
+     "interest_30d": {
+      "type": "number",
+      "title": "Interest 30D"
+     },
+     "stats": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/LoanStats"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "stats_by_source": {
+      "items": {
+       "$ref": "#/components/schemas/LoanStats"
+      },
+      "type": "array",
+      "title": "Stats By Source",
+      "default": []
+     },
+     "breakeven_monthly_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Breakeven Monthly Pct"
+     },
+     "interest_pct_nav_monthly": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Interest Pct Nav Monthly"
+     }
+    },
+    "type": "object",
+    "required": [
+     "buckets",
+     "loans",
+     "maturity",
+     "total_debt",
+     "interest_per_day",
+     "interest_30d"
+    ],
+    "title": "MarginOverview"
+   },
+   "MarketInfo": {
+    "properties": {
+     "state": {
+      "$ref": "#/components/schemas/MarketState"
+     },
+     "index_symbol": {
+      "type": "string",
+      "title": "Index Symbol",
+      "default": "VNINDEX"
+     },
+     "close": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Close"
+     },
+     "sma50": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sma50"
+     },
+     "sma200": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sma200"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "state"
+    ],
+    "title": "MarketInfo"
+   },
+   "MarketState": {
+    "type": "string",
+    "enum": [
+     "NORMAL",
+     "NO_NEW_BUYS",
+     "WEAK",
+     "UNKNOWN"
+    ],
+    "title": "MarketState"
+   },
+   "MaturityBucket": {
+    "properties": {
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "days": {
+      "type": "integer",
+      "title": "Days"
+     },
+     "amount": {
+      "type": "number",
+      "title": "Amount"
+     },
+     "count": {
+      "type": "integer",
+      "title": "Count"
+     }
+    },
+    "type": "object",
+    "required": [
+     "label",
+     "days",
+     "amount",
+     "count"
+    ],
+    "title": "MaturityBucket"
+   },
+   "OverviewResponse": {
+    "properties": {
+     "broker": {
+      "type": "string",
+      "title": "Broker"
+     },
+     "account_id": {
+      "type": "string",
+      "title": "Account Id"
+     },
+     "as_of": {
+      "type": "string",
+      "format": "date-time",
+      "title": "As Of"
+     },
+     "session": {
+      "$ref": "#/components/schemas/SessionInfo"
+     },
+     "market": {
+      "$ref": "#/components/schemas/MarketInfo"
+     },
+     "assets": {
+      "$ref": "#/components/schemas/AssetOverview"
+     },
+     "margin": {
+      "$ref": "#/components/schemas/MarginOverview"
+     },
+     "top_alerts": {
+      "items": {
+       "$ref": "#/components/schemas/AlertRecord"
+      },
+      "type": "array",
+      "title": "Top Alerts"
+     },
+     "counts": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "type": "object",
+      "title": "Counts"
+     },
+     "data_age_seconds": {
+      "type": "integer",
+      "title": "Data Age Seconds",
+      "default": 0
+     },
+     "read_only": {
+      "type": "boolean",
+      "title": "Read Only",
+      "default": true
+     }
+    },
+    "type": "object",
+    "required": [
+     "broker",
+     "account_id",
+     "as_of",
+     "session",
+     "market",
+     "assets",
+     "margin",
+     "top_alerts",
+     "counts"
+    ],
+    "title": "OverviewResponse"
+   },
+   "PlanBody": {
+    "properties": {
+     "mode": {
+      "type": "string",
+      "enum": [
+       "swing",
+       "dca"
+      ],
+      "title": "Mode",
+      "default": "swing"
+     },
+     "entry_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Entry Date"
+     },
+     "has_thesis": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Has Thesis"
+     },
+     "ladder_done": {
+      "type": "integer",
+      "title": "Ladder Done",
+      "default": 0
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "title": "PlanBody"
+   },
+   "PositionEval": {
+    "properties": {
+     "row_id": {
+      "type": "string",
+      "title": "Row Id",
+      "default": ""
+     },
+     "source": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source"
+     },
+     "account_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Account Id"
+     },
+     "take_profit": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/TakeProfitPlan"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "rotation": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/RotationPlan"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "hold": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/HoldStatus"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "technical": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/TechPlan"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "lots": {
+      "items": {
+       "$ref": "#/components/schemas/LotEval"
+      },
+      "type": "array",
+      "title": "Lots",
+      "default": []
+     },
+     "unknown_lot": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/UnknownLot"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "sources": {
+      "items": {
+       "$ref": "#/components/schemas/SourceShare"
+      },
+      "type": "array",
+      "title": "Sources",
+      "default": []
+     },
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "quantity": {
+      "type": "integer",
+      "title": "Quantity"
+     },
+     "avg_cost": {
+      "type": "number",
+      "title": "Avg Cost"
+     },
+     "price": {
+      "type": "number",
+      "title": "Price"
+     },
+     "market_value": {
+      "type": "number",
+      "title": "Market Value"
+     },
+     "pnl": {
+      "type": "number",
+      "title": "Pnl"
+     },
+     "pnl_pct": {
+      "type": "number",
+      "title": "Pnl Pct"
+     },
+     "weight_pct": {
+      "type": "number",
+      "title": "Weight Pct"
+     },
+     "mode": {
+      "type": "string",
+      "enum": [
+       "swing",
+       "dca"
+      ],
+      "title": "Mode"
+     },
+     "status": {
+      "$ref": "#/components/schemas/PositionStatus"
+     },
+     "urgency": {
+      "type": "number",
+      "title": "Urgency"
+     },
+     "stop_level": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stop Level"
+     },
+     "stop_basis": {
+      "type": "string",
+      "title": "Stop Basis"
+     },
+     "distance_to_stop_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distance To Stop Pct"
+     },
+     "risk_to_stop_value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Risk To Stop Value"
+     },
+     "peak_gain_pct": {
+      "type": "number",
+      "title": "Peak Gain Pct"
+     },
+     "peak_is_proxy": {
+      "type": "boolean",
+      "title": "Peak Is Proxy"
+     },
+     "indicators": {
+      "$ref": "#/components/schemas/Indicators"
+     },
+     "ladder": {
+      "items": {
+       "$ref": "#/components/schemas/LadderStatus"
+      },
+      "type": "array",
+      "title": "Ladder"
+     },
+     "actions": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Actions"
+     },
+     "flags": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Flags"
+     },
+     "plan": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PositionPlan"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "data_ok": {
+      "type": "boolean",
+      "title": "Data Ok",
+      "default": true
+     }
+    },
+    "type": "object",
+    "required": [
+     "symbol",
+     "quantity",
+     "avg_cost",
+     "price",
+     "market_value",
+     "pnl",
+     "pnl_pct",
+     "weight_pct",
+     "mode",
+     "status",
+     "urgency",
+     "stop_level",
+     "stop_basis",
+     "distance_to_stop_pct",
+     "risk_to_stop_value",
+     "peak_gain_pct",
+     "peak_is_proxy",
+     "indicators",
+     "ladder",
+     "actions",
+     "flags"
+    ],
+    "title": "PositionEval"
+   },
+   "PositionIn": {
+    "properties": {
+     "quantity": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Quantity"
+     },
+     "avg_cost": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Avg Cost"
+     },
+     "last_price": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Price"
+     },
+     "bought_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Bought At"
+     }
+    },
+    "type": "object",
+    "title": "PositionIn"
+   },
+   "PositionPlan": {
+    "properties": {
+     "broker": {
+      "type": "string",
+      "title": "Broker"
+     },
+     "account_id": {
+      "type": "string",
+      "title": "Account Id"
+     },
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "mode": {
+      "type": "string",
+      "enum": [
+       "swing",
+       "dca"
+      ],
+      "title": "Mode",
+      "default": "swing"
+     },
+     "entry_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Entry Date"
+     },
+     "has_thesis": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Has Thesis"
+     },
+     "ladder_done": {
+      "type": "integer",
+      "title": "Ladder Done",
+      "default": 0
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "broker",
+     "account_id",
+     "symbol"
+    ],
+    "title": "PositionPlan",
+    "description": "Kế hoạch do người dùng khai báo, broker không cung cấp."
+   },
+   "PositionStatus": {
+    "type": "string",
+    "enum": [
+     "SAFE",
+     "WARNING",
+     "TAKE_PROFIT",
+     "TIME_STOP",
+     "STOP_HIT",
+     "TRAPPED"
+    ],
+    "title": "PositionStatus"
+   },
+   "PositionView": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "account_id": {
+      "type": "string",
+      "title": "Account Id"
+     },
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "quantity": {
+      "type": "integer",
+      "title": "Quantity"
+     },
+     "avg_cost": {
+      "type": "number",
+      "title": "Avg Cost"
+     },
+     "last_price": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Price"
+     },
+     "bought_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Bought At"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     },
+     "price": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Price"
+     },
+     "price_is_live": {
+      "type": "boolean",
+      "title": "Price Is Live",
+      "default": false
+     },
+     "cost_value": {
+      "type": "number",
+      "title": "Cost Value"
+     },
+     "market_value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Market Value"
+     },
+     "pnl": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pnl"
+     },
+     "pnl_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pnl Pct"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "account_id",
+     "symbol",
+     "quantity",
+     "avg_cost",
+     "cost_value",
+     "market_value",
+     "pnl",
+     "pnl_pct"
+    ],
+    "title": "PositionView"
+   },
+   "PositionsResponse": {
+    "properties": {
+     "positions": {
+      "items": {
+       "$ref": "#/components/schemas/PositionEval"
+      },
+      "type": "array",
+      "title": "Positions"
+     },
+     "market": {
+      "$ref": "#/components/schemas/MarketInfo"
+     },
+     "notes": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Notes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "positions",
+     "market",
+     "notes"
+    ],
+    "title": "PositionsResponse"
+   },
+   "PurchaseIn": {
+    "properties": {
+     "symbol": {
+      "type": "string",
+      "maxLength": 10,
+      "minLength": 2,
+      "title": "Symbol"
+     },
+     "quantity": {
+      "type": "integer",
+      "exclusiveMinimum": 0.0,
+      "title": "Quantity"
+     },
+     "price": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Price"
+     },
+     "total_amount": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Total Amount"
+     },
+     "bought_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Bought At"
+     },
+     "record_lot": {
+      "type": "boolean",
+      "title": "Record Lot",
+      "default": true
+     }
+    },
+    "type": "object",
+    "required": [
+     "symbol",
+     "quantity"
+    ],
+    "title": "PurchaseIn"
+   },
+   "ResolveBody": {
+    "properties": {
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "title": "ResolveBody"
+   },
+   "RotationCheck": {
+    "properties": {
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "met": {
+      "type": "boolean",
+      "title": "Met"
+     },
+     "detail": {
+      "type": "string",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "required": [
+     "code",
+     "label",
+     "met",
+     "detail"
+    ],
+    "title": "RotationCheck"
+   },
+   "RotationIn": {
+    "properties": {
+     "symbol": {
+      "type": "string",
+      "maxLength": 10,
+      "minLength": 2,
+      "title": "Symbol"
+     },
+     "side": {
+      "type": "string",
+      "enum": [
+       "sell",
+       "buy"
+      ],
+      "title": "Side"
+     },
+     "trade_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Trade Date"
+     },
+     "quantity": {
+      "type": "integer",
+      "exclusiveMinimum": 0.0,
+      "title": "Quantity"
+     },
+     "price": {
+      "type": "number",
+      "exclusiveMinimum": 0.0,
+      "title": "Price"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 300
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "symbol",
+     "side",
+     "trade_date",
+     "quantity",
+     "price"
+    ],
+    "title": "RotationIn"
+   },
+   "RotationPlan": {
+    "properties": {
+     "phase": {
+      "type": "string",
+      "enum": [
+       "off",
+       "falling",
+       "rebounding",
+       "sell_zone",
+       "trend_change",
+       "wait_rebuy",
+       "rebuy_zone",
+       "broken",
+       "missed",
+       "expired"
+      ],
+      "title": "Phase"
+     },
+     "phase_label": {
+      "type": "string",
+      "title": "Phase Label"
+     },
+     "level": {
+      "type": "string",
+      "enum": [
+       "none",
+       "watch",
+       "sell",
+       "rebuy",
+       "blocked"
+      ],
+      "title": "Level"
+     },
+     "text": {
+      "type": "string",
+      "title": "Text"
+     },
+     "sell_qty": {
+      "type": "integer",
+      "title": "Sell Qty",
+      "default": 0
+     },
+     "rebuy_qty": {
+      "type": "integer",
+      "title": "Rebuy Qty",
+      "default": 0
+     },
+     "rebuy_allowed": {
+      "type": "boolean",
+      "title": "Rebuy Allowed",
+      "default": true
+     },
+     "low": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Low"
+     },
+     "high": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "High"
+     },
+     "rebound_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Rebound Pct"
+     },
+     "retrace_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Retrace Pct"
+     },
+     "tier_prices": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "title": "Tier Prices",
+      "default": []
+     },
+     "tier_qtys": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array",
+      "title": "Tier Qtys",
+      "default": []
+     },
+     "rebuy_below": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Rebuy Below"
+     },
+     "floor": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Floor"
+     },
+     "base_qty": {
+      "type": "integer",
+      "title": "Base Qty",
+      "default": 0
+     },
+     "sold_qty": {
+      "type": "integer",
+      "title": "Sold Qty",
+      "default": 0
+     },
+     "sold_avg": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sold Avg"
+     },
+     "bought_qty": {
+      "type": "integer",
+      "title": "Bought Qty",
+      "default": 0
+     },
+     "open_qty": {
+      "type": "integer",
+      "title": "Open Qty",
+      "default": 0
+     },
+     "sessions_since_sell": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sessions Since Sell"
+     },
+     "sessions_left": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sessions Left"
+     },
+     "checks": {
+      "items": {
+       "$ref": "#/components/schemas/RotationCheck"
+      },
+      "type": "array",
+      "title": "Checks",
+      "default": []
+     },
+     "trades": {
+      "items": {
+       "$ref": "#/components/schemas/RotationTrade"
+      },
+      "type": "array",
+      "title": "Trades",
+      "default": []
+     }
+    },
+    "type": "object",
+    "required": [
+     "phase",
+     "phase_label",
+     "level",
+     "text"
+    ],
+    "title": "RotationPlan",
+    "description": "Khuyến nghị đảo hàng hôm nay cho một dòng vị thế."
+   },
+   "RotationTrade": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "broker": {
+      "type": "string",
+      "title": "Broker"
+     },
+     "account_id": {
+      "type": "string",
+      "title": "Account Id"
+     },
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "side": {
+      "type": "string",
+      "enum": [
+       "sell",
+       "buy"
+      ],
+      "title": "Side"
+     },
+     "trade_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Trade Date"
+     },
+     "quantity": {
+      "type": "integer",
+      "title": "Quantity"
+     },
+     "price": {
+      "type": "number",
+      "title": "Price"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "broker",
+     "account_id",
+     "symbol",
+     "side",
+     "trade_date",
+     "quantity",
+     "price"
+    ],
+    "title": "RotationTrade",
+    "description": "Một lần bán hoặc mua lại trong chu kỳ đảo hàng (mục 6b). Người dùng tự ghi; app không đặt lệnh."
+   },
+   "RulesPatch": {
+    "properties": {
+     "patch": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Patch"
+     },
+     "confirm_open_positions": {
+      "type": "boolean",
+      "title": "Confirm Open Positions",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "patch"
+    ],
+    "title": "RulesPatch"
+   },
+   "RulesResponse": {
+    "properties": {
+     "effective": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Effective"
+     },
+     "defaults": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Defaults"
+     },
+     "has_overrides": {
+      "type": "boolean",
+      "title": "Has Overrides"
+     }
+    },
+    "type": "object",
+    "required": [
+     "effective",
+     "defaults",
+     "has_overrides"
+    ],
+    "title": "RulesResponse"
+   },
+   "ScenarioRequest": {
+    "properties": {
+     "market_drop_pct": {
+      "type": "number",
+      "maximum": 90.0,
+      "minimum": 0.0,
+      "title": "Market Drop Pct",
+      "description": "Thị trường giảm bao nhiêu %, số dương: 10 nghĩa là giảm 10%",
+      "default": 0.0
+     },
+     "sell": {
+      "items": {
+       "$ref": "#/components/schemas/ScenarioSell"
+      },
+      "type": "array",
+      "title": "Sell",
+      "default": []
+     },
+     "add_cash": {
+      "type": "number",
+      "minimum": 0.0,
+      "title": "Add Cash",
+      "description": "Tiền nộp thêm (VND), được dùng trả nợ margin",
+      "default": 0.0
+     }
+    },
+    "type": "object",
+    "title": "ScenarioRequest"
+   },
+   "ScenarioResult": {
+    "properties": {
+     "request": {
+      "$ref": "#/components/schemas/ScenarioRequest"
+     },
+     "before": {
+      "$ref": "#/components/schemas/ScenarioState"
+     },
+     "after": {
+      "$ref": "#/components/schemas/ScenarioState"
+     },
+     "sale_proceeds": {
+      "type": "number",
+      "title": "Sale Proceeds"
+     },
+     "realized_pnl": {
+      "type": "number",
+      "title": "Realized Pnl"
+     },
+     "debt_repaid": {
+      "type": "number",
+      "title": "Debt Repaid"
+     },
+     "warnings": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Warnings",
+      "default": []
+     }
+    },
+    "type": "object",
+    "required": [
+     "request",
+     "before",
+     "after",
+     "sale_proceeds",
+     "realized_pnl",
+     "debt_repaid"
+    ],
+    "title": "ScenarioResult"
+   },
+   "ScenarioSell": {
+    "properties": {
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "quantity": {
+      "type": "integer",
+      "exclusiveMinimum": 0.0,
+      "title": "Quantity"
+     }
+    },
+    "type": "object",
+    "required": [
+     "symbol",
+     "quantity"
+    ],
+    "title": "ScenarioSell"
+   },
+   "ScenarioState": {
+    "properties": {
+     "positions_value": {
+      "type": "number",
+      "title": "Positions Value"
+     },
+     "cash": {
+      "type": "number",
+      "title": "Cash"
+     },
+     "debt": {
+      "type": "number",
+      "title": "Debt"
+     },
+     "nav": {
+      "type": "number",
+      "title": "Nav"
+     },
+     "unrealized_pnl": {
+      "type": "number",
+      "title": "Unrealized Pnl"
+     },
+     "unrealized_pnl_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Unrealized Pnl Pct"
+     },
+     "interest_per_day": {
+      "type": "number",
+      "title": "Interest Per Day"
+     },
+     "buckets": {
+      "items": {
+       "$ref": "#/components/schemas/MarginMetrics"
+      },
+      "type": "array",
+      "title": "Buckets"
+     },
+     "focus_bucket_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Focus Bucket Id"
+     },
+     "cash_needed": {
+      "type": "number",
+      "title": "Cash Needed"
+     }
+    },
+    "type": "object",
+    "required": [
+     "positions_value",
+     "cash",
+     "debt",
+     "nav",
+     "unrealized_pnl",
+     "unrealized_pnl_pct",
+     "interest_per_day",
+     "buckets",
+     "focus_bucket_id",
+     "cash_needed"
+    ],
+    "title": "ScenarioState",
+    "description": "Danh mục và ký quỹ ở một thời điểm: trước hoặc sau kịch bản."
+   },
+   "SessionInfo": {
+    "properties": {
+     "broker": {
+      "type": "string",
+      "title": "Broker"
+     },
+     "configured": {
+      "type": "boolean",
+      "title": "Configured"
+     },
+     "authenticated": {
+      "type": "boolean",
+      "title": "Authenticated"
+     },
+     "needs_otp": {
+      "type": "boolean",
+      "title": "Needs Otp"
+     },
+     "expires_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Expires At"
+     },
+     "message": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Message"
+     }
+    },
+    "type": "object",
+    "required": [
+     "broker",
+     "configured",
+     "authenticated",
+     "needs_otp"
+    ],
+    "title": "SessionInfo"
+   },
+   "SizingPlan": {
+    "properties": {
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "price": {
+      "type": "number",
+      "title": "Price"
+     },
+     "stop_price": {
+      "type": "number",
+      "title": "Stop Price"
+     },
+     "stop_basis": {
+      "type": "string",
+      "title": "Stop Basis"
+     },
+     "stop_distance": {
+      "type": "number",
+      "title": "Stop Distance"
+     },
+     "stop_distance_pct": {
+      "type": "number",
+      "title": "Stop Distance Pct"
+     },
+     "atr14": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Atr14"
+     },
+     "capital": {
+      "type": "number",
+      "title": "Capital"
+     },
+     "risk_pct": {
+      "type": "number",
+      "title": "Risk Pct"
+     },
+     "risk_money": {
+      "type": "number",
+      "title": "Risk Money"
+     },
+     "max_weight_pct": {
+      "type": "number",
+      "title": "Max Weight Pct"
+     },
+     "qty_by_risk": {
+      "type": "integer",
+      "title": "Qty By Risk"
+     },
+     "qty_by_weight": {
+      "type": "integer",
+      "title": "Qty By Weight"
+     },
+     "qty_plan": {
+      "type": "integer",
+      "title": "Qty Plan"
+     },
+     "binding": {
+      "type": "string",
+      "enum": [
+       "risk",
+       "weight"
+      ],
+      "title": "Binding"
+     },
+     "plan_value": {
+      "type": "number",
+      "title": "Plan Value"
+     },
+     "plan_weight_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Plan Weight Pct"
+     },
+     "risk_at_stop": {
+      "type": "number",
+      "title": "Risk At Stop"
+     },
+     "tranches": {
+      "items": {
+       "$ref": "#/components/schemas/SizingTranche"
+      },
+      "type": "array",
+      "title": "Tranches"
+     },
+     "held_quantity": {
+      "type": "integer",
+      "title": "Held Quantity"
+     },
+     "additional_quantity": {
+      "type": "integer",
+      "title": "Additional Quantity"
+     },
+     "positions_count": {
+      "type": "integer",
+      "title": "Positions Count"
+     },
+     "max_positions": {
+      "type": "integer",
+      "title": "Max Positions"
+     },
+     "market": {
+      "$ref": "#/components/schemas/MarketInfo"
+     },
+     "allowed": {
+      "type": "boolean",
+      "title": "Allowed"
+     },
+     "warnings": {
+      "items": {
+       "$ref": "#/components/schemas/SizingWarning"
+      },
+      "type": "array",
+      "title": "Warnings"
+     }
+    },
+    "type": "object",
+    "required": [
+     "symbol",
+     "price",
+     "stop_price",
+     "stop_basis",
+     "stop_distance",
+     "stop_distance_pct",
+     "atr14",
+     "capital",
+     "risk_pct",
+     "risk_money",
+     "max_weight_pct",
+     "qty_by_risk",
+     "qty_by_weight",
+     "qty_plan",
+     "binding",
+     "plan_value",
+     "plan_weight_pct",
+     "risk_at_stop",
+     "tranches",
+     "held_quantity",
+     "additional_quantity",
+     "positions_count",
+     "max_positions",
+     "market",
+     "allowed",
+     "warnings"
+    ],
+    "title": "SizingPlan"
+   },
+   "SizingTranche": {
+    "properties": {
+     "index": {
+      "type": "integer",
+      "title": "Index"
+     },
+     "pct": {
+      "type": "number",
+      "title": "Pct"
+     },
+     "quantity": {
+      "type": "integer",
+      "title": "Quantity"
+     },
+     "value": {
+      "type": "number",
+      "title": "Value"
+     },
+     "trigger_price": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Trigger Price"
+     },
+     "condition": {
+      "type": "string",
+      "title": "Condition"
+     },
+     "likely_skipped": {
+      "type": "boolean",
+      "title": "Likely Skipped",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "index",
+     "pct",
+     "quantity",
+     "value",
+     "trigger_price",
+     "condition"
+    ],
+    "title": "SizingTranche"
+   },
+   "SizingWarning": {
+    "properties": {
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "severity": {
+      "type": "string",
+      "enum": [
+       "block",
+       "warn",
+       "info"
+      ],
+      "title": "Severity"
+     },
+     "message": {
+      "type": "string",
+      "title": "Message"
+     }
+    },
+    "type": "object",
+    "required": [
+     "code",
+     "severity",
+     "message"
+    ],
+    "title": "SizingWarning"
+   },
+   "SourceShare": {
+    "properties": {
+     "source": {
+      "type": "string",
+      "title": "Source"
+     },
+     "account": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Account"
+     },
+     "quantity": {
+      "type": "integer",
+      "title": "Quantity"
+     },
+     "avg_cost": {
+      "type": "number",
+      "title": "Avg Cost"
+     }
+    },
+    "type": "object",
+    "required": [
+     "source",
+     "quantity",
+     "avg_cost"
+    ],
+    "title": "SourceShare",
+    "description": "Phần nắm giữ của một mã tại một nguồn (công ty chứng khoán hoặc tiểu danh mục)."
+   },
+   "TakeProfitAdvice": {
+    "properties": {
+     "level": {
+      "type": "string",
+      "enum": [
+       "none",
+       "watch",
+       "partial",
+       "full"
+      ],
+      "title": "Level"
+     },
+     "text": {
+      "type": "string",
+      "title": "Text"
+     },
+     "sell_qty": {
+      "type": "integer",
+      "title": "Sell Qty",
+      "default": 0
+     },
+     "reason_codes": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Reason Codes",
+      "default": []
+     }
+    },
+    "type": "object",
+    "required": [
+     "level",
+     "text"
+    ],
+    "title": "TakeProfitAdvice"
+   },
+   "TakeProfitPlan": {
+    "properties": {
+     "r_value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "R Value"
+     },
+     "r_multiple": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "R Multiple"
+     },
+     "original_qty": {
+      "type": "integer",
+      "title": "Original Qty"
+     },
+     "targets": {
+      "items": {
+       "$ref": "#/components/schemas/TakeProfitTarget"
+      },
+      "type": "array",
+      "title": "Targets"
+     },
+     "signals": {
+      "items": {
+       "$ref": "#/components/schemas/TakeProfitSignal"
+      },
+      "type": "array",
+      "title": "Signals"
+     },
+     "advice": {
+      "$ref": "#/components/schemas/TakeProfitAdvice"
+     },
+     "next_target": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/TakeProfitTarget"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "type": "object",
+    "required": [
+     "r_value",
+     "r_multiple",
+     "original_qty",
+     "targets",
+     "signals",
+     "advice"
+    ],
+    "title": "TakeProfitPlan"
+   },
+   "TakeProfitSignal": {
+    "properties": {
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "group": {
+      "type": "string",
+      "enum": [
+       "strength",
+       "weakness"
+      ],
+      "title": "Group"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "met": {
+      "type": "boolean",
+      "title": "Met"
+     },
+     "detail": {
+      "type": "string",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "required": [
+     "code",
+     "group",
+     "label",
+     "met",
+     "detail"
+    ],
+    "title": "TakeProfitSignal"
+   },
+   "TakeProfitTarget": {
+    "properties": {
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "ladder",
+       "r"
+      ],
+      "title": "Kind"
+     },
+     "price": {
+      "type": "number",
+      "title": "Price"
+     },
+     "distance_pct": {
+      "type": "number",
+      "title": "Distance Pct"
+     },
+     "sell_pct_of_original": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sell Pct Of Original"
+     },
+     "sell_qty": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sell Qty"
+     },
+     "reached": {
+      "type": "boolean",
+      "title": "Reached"
+     },
+     "executed": {
+      "type": "boolean",
+      "title": "Executed",
+      "default": false
+     },
+     "suspended": {
+      "type": "boolean",
+      "title": "Suspended",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "label",
+     "kind",
+     "price",
+     "distance_pct",
+     "reached"
+    ],
+    "title": "TakeProfitTarget"
+   },
+   "TechCheck": {
+    "properties": {
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "met": {
+      "type": "boolean",
+      "title": "Met"
+     },
+     "detail": {
+      "type": "string",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "required": [
+     "code",
+     "label",
+     "met",
+     "detail"
+    ],
+    "title": "TechCheck"
+   },
+   "TechPlan": {
+    "properties": {
+     "stage": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stage"
+     },
+     "stage_label": {
+      "type": "string",
+      "title": "Stage Label"
+     },
+     "stage_detail": {
+      "type": "string",
+      "title": "Stage Detail"
+     },
+     "resistance": {
+      "items": {
+       "$ref": "#/components/schemas/TechZone"
+      },
+      "type": "array",
+      "title": "Resistance",
+      "default": []
+     },
+     "support": {
+      "items": {
+       "$ref": "#/components/schemas/TechZone"
+      },
+      "type": "array",
+      "title": "Support",
+      "default": []
+     },
+     "sell_zones": {
+      "items": {
+       "$ref": "#/components/schemas/TechZone"
+      },
+      "type": "array",
+      "title": "Sell Zones",
+      "default": []
+     },
+     "invalidation": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Invalidation"
+     },
+     "invalidation_basis": {
+      "type": "string",
+      "title": "Invalidation Basis",
+      "default": ""
+     },
+     "bottom_checks": {
+      "items": {
+       "$ref": "#/components/schemas/TechCheck"
+      },
+      "type": "array",
+      "title": "Bottom Checks",
+      "default": []
+     },
+     "bottom_score": {
+      "type": "integer",
+      "title": "Bottom Score",
+      "default": 0
+     },
+     "bottom_label": {
+      "type": "string",
+      "title": "Bottom Label",
+      "default": ""
+     },
+     "scenarios": {
+      "items": {
+       "$ref": "#/components/schemas/TechScenario"
+      },
+      "type": "array",
+      "title": "Scenarios",
+      "default": []
+     },
+     "summary": {
+      "type": "string",
+      "title": "Summary",
+      "default": ""
+     }
+    },
+    "type": "object",
+    "required": [
+     "stage",
+     "stage_label",
+     "stage_detail"
+    ],
+    "title": "TechPlan"
+   },
+   "TechScenario": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "enum": [
+       "rebound",
+       "sideways",
+       "decline"
+      ],
+      "title": "Name"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "trigger": {
+      "type": "string",
+      "title": "Trigger"
+     },
+     "action": {
+      "type": "string",
+      "title": "Action"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "title",
+     "trigger",
+     "action"
+    ],
+    "title": "TechScenario"
+   },
+   "TechZone": {
+    "properties": {
+     "price": {
+      "type": "number",
+      "title": "Price"
+     },
+     "low": {
+      "type": "number",
+      "title": "Low"
+     },
+     "high": {
+      "type": "number",
+      "title": "High"
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "resistance",
+       "support"
+      ],
+      "title": "Kind"
+     },
+     "tools": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Tools"
+     },
+     "strength": {
+      "type": "integer",
+      "title": "Strength"
+     },
+     "distance_pct": {
+      "type": "number",
+      "title": "Distance Pct"
+     },
+     "sell_pct": {
+      "type": "number",
+      "title": "Sell Pct",
+      "default": 0.0
+     },
+     "sell_qty": {
+      "type": "integer",
+      "title": "Sell Qty",
+      "default": 0
+     },
+     "cum_pct": {
+      "type": "number",
+      "title": "Cum Pct",
+      "default": 0.0
+     },
+     "ratio_after": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio After"
+     },
+     "margin_sized": {
+      "type": "boolean",
+      "title": "Margin Sized",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "price",
+     "low",
+     "high",
+     "kind",
+     "tools",
+     "strength",
+     "distance_pct"
+    ],
+    "title": "TechZone",
+    "description": "Một vùng giá do nhiều công cụ kỹ thuật cùng chỉ ra (mục 6d)."
+   },
+   "UnknownLot": {
+    "properties": {
+     "quantity": {
+      "type": "integer",
+      "title": "Quantity"
+     },
+     "avg_cost": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Avg Cost"
+     }
+    },
+    "type": "object",
+    "required": [
+     "quantity",
+     "avg_cost"
+    ],
+    "title": "UnknownLot"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   }
+  }
+ }
+}

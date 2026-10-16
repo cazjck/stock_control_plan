@@ -1,0 +1,89 @@
+{
+  "account": {
+    "id": "DEMO-0001",
+    "name": "Tài khoản demo (dữ liệu mẫu)",
+    "kind": "margin"
+  },
+  "cash": 12300000,
+  "margin": {
+    "initial_pct": 50,
+    "maintenance_pct": 40,
+    "liquidation_pct": 35,
+    "principal": 196000000,
+    "accrued_interest": 2800000
+  },
+  "positions": [
+    {
+      "symbol": "FPT",
+      "quantity": 1000,
+      "avg_cost": 112000,
+      "price": 126500,
+      "scenario": "uptrend",
+      "seed": 11
+    },
+    {
+      "symbol": "HPG",
+      "quantity": 3000,
+      "avg_cost": 28000,
+      "price": 24800,
+      "scenario": "downtrend",
+      "seed": 22
+    },
+    {
+      "symbol": "VND",
+      "quantity": 4000,
+      "avg_cost": 19400,
+      "price": 18600,
+      "scenario": "soft_decline",
+      "seed": 33
+    },
+    {
+      "symbol": "MWG",
+      "quantity": 500,
+      "avg_cost": 62000,
+      "price": 63100,
+      "scenario": "soft_decline",
+      "seed": 44
+    },
+    {
+      "symbol": "SSI",
+      "quantity": 2000,
+      "avg_cost": 31000,
+      "price": 26000,
+      "scenario": "downtrend",
+      "seed": 55
+    }
+  ],
+  "loans": [
+    {
+      "principal": 80000000,
+      "remaining": 80000000,
+      "interest": 900000,
+      "rate_pct": 12.5,
+      "opened_days_ago": 82,
+      "due_in_days": 5
+    },
+    {
+      "principal": 70000000,
+      "remaining": 70000000,
+      "interest": 1100000,
+      "rate_pct": 12.5,
+      "opened_days_ago": 60,
+      "due_in_days": 18
+    },
+    {
+      "principal": 46000000,
+      "remaining": 46000000,
+      "interest": 800000,
+      "rate_pct": 13.0,
+      "opened_days_ago": 35,
+      "due_in_days": 40
+    }
+  ],
+  "index": {
+    "symbol": "VNINDEX",
+    "price": 1285,
+    "scenario": "index_pullback",
+    "seed": 99
+  }
+}

@@ -1,0 +1,144 @@
+# Bộ luật giao dịch kỷ luật v2 (docs/trading-rules.md, mục 8). Nguồn sự thật duy nhất cho tham số.
+capital_mode: cash_only
+risk_per_trade_pct: 1.5
+max_weight_pct: 20
+max_positions: 5
+monthly_risk_budget_pct: 6
+
+entry:
+  tranches: [25, 25, 25, 25]
+  add_only_if_up_pct: 3
+  add_only_if_up_atr_mult: 1
+  skip_tranche_if_above_avg_pct: 10
+  rsi_min: 45
+  rsi_max: 65
+  volume_ratio_min: 1.2
+  max_distance_to_sma20_pct: 8
+  no_buy_if_day_gain_pct_above: 5
+  market_filter:
+    index: VNINDEX
+    fast_ma: 50
+    slow_ma: 200
+
+dca:
+  tranches: [25, 25, 25, 25]
+  interval_days: 30
+  skip_if_above_avg_enabled: false
+  skip_if_above_avg_pct: 15
+  catastrophe_stop_pct: 25      # của dự án: DCA chỉ có ngưỡng thảm hoạ
+
+stop_loss:
+  pct: 7
+  atr_multiplier: 2
+  atr_period: 14
+  trigger: close
+  minervini_autotune_enabled: true
+  minervini_min_trades: 20
+  time_stop_sessions: 10
+  time_stop_min_gain_pct: 3
+  weak_market_pct: 5
+
+take_profit:
+  ladder:
+    - {gain_pct: 7,  sell_pct: 0,  move_stop_to_gain_pct: 0}
+    - {gain_pct: 10, sell_pct: 25, move_stop_to_gain_pct: 3}
+    - {gain_pct: 15, sell_pct: 25, move_stop_to_gain_pct: 7}
+    - {gain_pct: 25, sell_pct: 25, move_stop_to_gain_pct: 15}
+  weak_market_exit_gain_pct: 10
+  eight_week_rule:
+    enabled: true
+    gain_pct: 20
+    within_sessions: 15
+    hold_sessions: 40
+  trailing:
+    atr_period: 22
+    atr_multiplier: 3
+    floor_sma: 20
+  r_targets: [2, 3]               # mục tiêu tham chiếu theo bội số rủi ro ban đầu (Van Tharp)
+  climax:                         # bán vào sức mạnh: dấu hiệu tăng cao trào (O'Neil/IBD, Minervini)
+    gain_pct: 25
+    within_sessions: 15
+    up_days: 7
+    up_days_window: 8
+    lookback_sessions: 60
+    volume_ratio: 2.0
+    exhaustion_gap_min_gain_pct: 20
+    extension_above_sma50_pct: 25
+    rsi_overbought: 80
+    min_signals_partial: 2
+    sell_fraction: 0.5
+  weakness:                       # bán khi yếu đi để giữ lãi (IBD)
+    min_gain_pct: 5
+    ema_period: 21
+    heavy_volume_ratio: 1.5
+    ema_sell_fraction: 0.5
+    sma_exit: 50
+
+trapped:
+  # Giao thức thoát hàng kẹt (mục 6)
+  loss_pct_threshold: 7         # lỗ từ ngưỡng này trở lên bị coi là hàng kẹt
+  group_b_sell_now_pct: 50
+  group_b_sell_rest_after_sessions: 10
+  group_a_stop_from_price_pct: 10
+  group_a_stop_below_low20_pct: 3
+
+add_on_lots:
+  # Lô mua thêm khi đang lỗ có mức cắt lỗ và hạn riêng, tính từ giá mua của chính lô (không phải giá vốn bình quân)
+  stop_below_buy_day_low_pct: 1     # thủng đáy phiên mua trừ 1%: bắt đáy sai
+  stop_from_price_pct: 5            # hoặc giá mua trừ 5%; lấy mức cao hơn trong hai mức
+  settle_sessions: 2                # T+2: cổ phiếu về tài khoản chiều T+2
+  time_stop_sessions_after_settle: 3
+  time_stop_min_gain_pct: 3
+
+rotation:
+  # Đảo hàng khi hồi (mục 6b): bán một phần lúc hồi, mua lại lúc chỉnh. Không bao giờ mua nhiều hơn số đã bán.
+  enabled: true
+  low_lookback_sessions: 20       # đáy gần nhất
+  high_lookback_sessions: 60      # đỉnh trước đoạn giảm
+  min_rebound_pct: 5              # hồi dưới mức này: chưa xét
+  sell_tiers:
+    - {rebound_pct: 10, retrace_pct: 38.2, sell_pct: 30}
+    - {rebound_pct: 20, retrace_pct: 50, sell_pct: 20}
+  bear_rsi_ceiling: 60            # Brown/Cardwell: RSI trong xu hướng giảm thường dừng 55–60
+  trend_change_retrace_pct: 61.8  # quá mức này và đóng cửa trên SMA50: thôi đảo hàng
+  max_rotation_pct: 50            # chuyên gia VPS: 30–50% lượng đang giữ
+  rebuy_drop_pct: 7               # mua lại khi giá thấp hơn giá bán ít nhất 7%
+  rebuy_min_sessions: 3           # tiền bán về sau T+2
+  rebuy_window_sessions: 20       # quá hạn: coi như đã bán hẳn
+  no_chase_above_sell_pct: 5      # giá vượt giá bán 5% và trên SMA50: không mua đuổi
+
+technical:
+  # Kế hoạch theo kỹ thuật (mục 6d)
+  stage_ma: 150                 # 30 tuần quy ra phiên ngày (Weinstein)
+  stage_slope_sessions: 20
+  stage_flat_pct: 0.5
+  lookback: 120                 # đoạn để tìm đỉnh, đáy cục bộ, Fibonacci, hồ sơ khối lượng
+  pivot_bars: 3
+  merge_atr: 0.5                # gộp các mức cách nhau dưới 0,5×ATR14
+  max_zone_distance_pct: 40
+  min_strength: 2
+  max_zones: 3
+  sell_pct_per_zone: 10
+  max_total_pct: 30
+  margin_max_total_pct: 50
+  invalidation_atr: 0.5
+  ftd_min_gain_pct: 1.25        # O'Neil/IBD
+  ftd_window: 25
+
+margin:
+  new_positions: forbidden
+  rtt_buffer_pct_points: 10
+  interest_alert_pct_nav_per_day: 0.1
+  sell_cost_pct: 0.25            # phí bán + thuế 0,1%, dùng khi tính tiền bán trả nợ
+
+alerts:
+  rtt_warn_points: 10           # cảnh báo khi RTT cách maintenance dưới N điểm %
+  loan_due_days: [7, 1]
+  portfolio_loss_pct_nav: 10    # cảnh báo khi lỗ chưa thực hiện vượt % NAV
+  stale_quote_minutes: 5
+
+behavior:
+  max_new_buys_per_day: 1
+  max_new_symbols_per_week: 2
+  cooldown_after_consecutive_stops: {count: 2, sessions: 5}
+  review_after_trades: 30

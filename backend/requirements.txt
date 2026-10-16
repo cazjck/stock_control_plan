@@ -1,0 +1,12 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.8
+pydantic-settings>=2.4
+httpx>=0.27
+websockets>=13
+pandas>=2.2
+numpy>=2.0
+TA-Lib>=0.6
+APScheduler>=3.10,<4
+PyYAML>=6.0
+python-dotenv>=1.0

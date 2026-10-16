@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+/* ---------- Token thiết kế: bảng màu thân tàu ----------
+   giấy hải đồ · mực thân tàu · nước biển · sơn chì đỏ (nguy hiểm) · hổ phách (theo dõi) · phao xanh (an toàn) */
+:root {
+  --paper: #ecefec;
+  --panel: #f8faf9;
+  --ink: #101f24;
+  --muted: #55676c;
+  --line: #cbd5d2;
+  --sea: #2f6f7e;
+  --sea-soft: #d6e6ea;
+  --lead: #b8321f;
+  --lead-soft: #f3dad5;
+  --amber: #8f5f00;
+  --amber-fill: #e0a31a;
+  --amber-soft: #f6e7c2;
+  --ok: #2a7449;
+  --ok-soft: #d8ebdf;
+  --hull: #101f24;
+  --hull-text: #ecefec;
+  --wave: #9ed3e0;
+  --ceil: #8a3ab0;
+  --floor: #0b7fa3;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0b161a;
+    --panel: #122127;
+    --ink: #e4edeb;
+    --muted: #93a5a9;
+    --line: #24383e;
+    --sea: #5faec0;
+    --sea-soft: #17343c;
+    --lead: #f0705a;
+    --lead-soft: #3a1a15;
+    --amber: #f0b93b;
+    --amber-fill: #f0b93b;
+    --amber-soft: #3a2d0e;
+    --ok: #5bc08a;
+    --ok-soft: #12301f;
+    --hull: #07100f;
+    --hull-text: #d5e2df;
+    --wave: #7cc4d6;
+    --ceil: #d08cf0;
+    --floor: #4cc7ec;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #0b161a;
+  --panel: #122127;
+  --ink: #e4edeb;
+  --muted: #93a5a9;
+  --line: #24383e;
+  --sea: #5faec0;
+  --sea-soft: #17343c;
+  --lead: #f0705a;
+  --lead-soft: #3a1a15;
+  --amber: #f0b93b;
+  --amber-fill: #f0b93b;
+  --amber-soft: #3a2d0e;
+  --ok: #5bc08a;
+  --ok-soft: #12301f;
+  --hull: #07100f;
+  --hull-text: #d5e2df;
+  --wave: #7cc4d6;
+  --ceil: #d08cf0;
+  --floor: #4cc7ec;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-sea: var(--sea);
+  --color-sea-soft: var(--sea-soft);
+  --color-lead: var(--lead);
+  --color-lead-soft: var(--lead-soft);
+  --color-amber: var(--amber);
+  --color-amber-fill: var(--amber-fill);
+  --color-amber-soft: var(--amber-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-hull: var(--hull);
+  --color-hull-text: var(--hull-text);
+  --color-ceil: var(--ceil);
+  --color-floor: var(--floor);
+
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 8px;
+}
+
+html {
+  background: var(--paper);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  font-feature-settings: "tnum" 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* số liệu luôn thẳng hàng */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* vùng nguy hiểm trên thân tàu: sọc chéo như sơn cảnh báo */
+.hatch-lead {
+  background-image: repeating-linear-gradient(135deg, var(--lead) 0 3px, transparent 3px 8px);
+}
+
+@keyframes rise {
+  from { transform: translateY(var(--rise-from, 24px)); }
+  to { transform: translateY(0); }
+}
+
+@keyframes wave {
+  from { transform: translateX(0); }
+  to { transform: translateX(-24px); }
+}
+
+.water-rise { animation: rise 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.water-wave { animation: wave 3.2s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .water-rise, .water-wave { animation: none; }
+  * { scroll-behavior: auto !important; }
+}
+
+/* thanh cuộn ngang cho bảng trên điện thoại */
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* khoảng đệm cho tab bar dưới trên điện thoại có tai thỏ */
+.safe-bottom { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
+
+/* ô bảng giá chớp nhẹ khi giá đổi */
+@keyframes tick-flash { from { background: var(--sea-soft); } to { background: transparent; } }
+.tick-flash { animation: tick-flash 900ms ease-out; }
+@media (prefers-reduced-motion: reduce) { .tick-flash { animation: none; } }

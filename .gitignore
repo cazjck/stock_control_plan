@@ -1,0 +1,21 @@
+# secrets and local state
+.env
+*.local.yaml
+backend/data/
+backend/.env
+backend/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
