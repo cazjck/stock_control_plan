@@ -1,0 +1,17 @@
+# Dịch vụ systemd cấp user (không cần root). Cài bằng scripts/deploy-web01.sh.
+# Chạy được cả khi không ai đăng nhập vì user đã bật linger (loginctl enable-linger).
+[Unit]
+Description=Stock control plan (dashboard quản trị rủi ro, chỉ đọc)
+After=network-online.target
+
+[Service]
+WorkingDirectory=%h/apps/stock_control_plan/backend
+EnvironmentFile=%h/apps/stock_control_plan/backend/.env
+ExecStart=%h/apps/stock_control_plan/backend/.venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8010 --proxy-headers --forwarded-allow-ips 127.0.0.1
+Restart=always
+RestartSec=5
+# giới hạn cho máy 2,8 GB RAM dùng chung
+MemoryMax=600M
+
+[Install]
+WantedBy=default.target

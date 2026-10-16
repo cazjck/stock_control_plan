@@ -102,6 +102,10 @@ Còn lại cần để ý:
 
 Stream giá realtime (giao diện đang làm mới mỗi 20 giây trong giờ giao dịch), nhắc qua Telegram, báo cáo sáng, kịch bản từng mã giảm sàn (6.4), đối chiếu kỷ luật từ lịch sử khớp lệnh, tự hiệu chỉnh cắt lỗ theo Minervini (cần nhật ký lệnh đã đóng), xem gộp nhiều broker.
 
+## Triển khai
+
+App đang chạy trên web-01, ra internet qua Cloudflare Tunnel ở `stock.pdk.one`. Cách cập nhật và cấu hình: [docs/deploy.md](docs/deploy.md).
+
 ## Kiểm thử
 
 ```bash

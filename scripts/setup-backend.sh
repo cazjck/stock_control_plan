@@ -29,5 +29,6 @@ PYEOF
 fi
 
 "$VENV/bin/python" -m pip install --quiet --upgrade pip
-"$VENV/bin/python" -m pip install --quiet -r "$ROOT/backend/requirements-dev.txt"
+REQS="${REQS:-requirements-dev.txt}"   # máy chủ: REQS=requirements.txt
+"$VENV/bin/python" -m pip install --quiet -r "$ROOT/backend/$REQS"
 echo "Backend sẵn sàng: $VENV"
