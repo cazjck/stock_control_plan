@@ -33,6 +33,29 @@ def drop_to_threshold(ratio_pct: float, threshold_pct: float, kind: str = "equit
     return max(0.0, min(100.0, (1 - (1 - r) / (1 - m)) * 100))
 
 
+def trigger_price(kind: str, ratio_pct: float | None, value: float, debt: float, row_value: float, qty: int,
+                  threshold_pct: float | None) -> float | None:
+    """Giá của MỘT mã mà tại đó tỷ lệ ký quỹ cả tài khoản chạm ngưỡng, giả định các mã khác đứng giá.
+
+    equity_over_value: (V' − D) / V' = m  =>  V' = D / (1 − m)
+    collateral_over_debt (RTT TCBS): tài sản đảm bảo tỷ lệ với giá trị, c = r × D / V  =>  c × V' / D = m  =>  V' = V × m / r
+    Giá = (V' − giá trị các mã khác) / số lượng. Không có nghĩa (≤ 0) thì trả None: mã này một mình không kéo tài khoản tới ngưỡng."""
+    if threshold_pct is None or qty <= 0 or debt <= 0 or value <= 0:
+        return None
+    other = value - row_value
+    if kind == "collateral_over_debt":
+        if not ratio_pct or ratio_pct <= 0:
+            return None
+        target_value = value * threshold_pct / ratio_pct
+    else:
+        m = threshold_pct / 100
+        if m >= 1:
+            return None
+        target_value = debt / (1 - m)
+    p = (target_value - other) / qty
+    return p if p > 0 else None
+
+
 def bucket_metrics(b: MarginBucket, rules: Rules) -> MarginMetrics:
     buf = rules.margin.rtt_buffer_pct_points
     warn = rules.alerts.rtt_warn_points

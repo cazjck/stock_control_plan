@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { OtpForm } from "../components/OtpForm";
 import { QueryState } from "../components/QueryState";
+import { TelegramSettings } from "../components/TelegramSettings";
 import { Button, Eyebrow, Field, Panel, inputCls } from "../components/ui";
 import { api, ApiError, tokenStore } from "../lib/api";
 import { cn, fmtTime } from "../lib/format";
@@ -228,6 +229,7 @@ export default function Settings() {
       <h1 className="display mb-5 text-3xl">Thiết lập</h1>
       <div className="space-y-9">
         <Brokers />
+        <TelegramSettings />
         <QueryState query={rules}>{(d) => <RulesEditor data={d} />}</QueryState>
         <ChangeLog />
         <Preferences />

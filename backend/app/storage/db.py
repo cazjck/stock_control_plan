@@ -55,6 +55,12 @@ class Store:
         with self._lock:
             self._db.executescript(SCHEMA)
             self._db.commit()
+            cols = {r[1] for r in self._db.execute("PRAGMA table_info(alerts)").fetchall()}
+            if "notified_at" not in cols:
+                self._db.execute("ALTER TABLE alerts ADD COLUMN notified_at TEXT")
+                # cảnh báo đã có trước khi bật thông báo coi như đã báo, tránh dồn một loạt tin cũ
+                self._db.execute("UPDATE alerts SET notified_at=last_seen")
+                self._db.commit()
 
     # ---------- plans ----------
 
@@ -87,14 +93,18 @@ class Store:
         keys = {c.key for c in candidates}
         with self._lock:
             open_rows = self._db.execute(
-                "SELECT id, key FROM alerts WHERE broker=? AND account_id=? AND status IN ('open','acked')",
+                "SELECT id, key, severity FROM alerts WHERE broker=? AND account_id=? AND status IN ('open','acked')",
                 (broker, account_id)).fetchall()
             existing = {r["key"]: r["id"] for r in open_rows}
+            old_sev = {r["key"]: r["severity"] for r in open_rows}
+            rank = {"info": 0, "warning": 1, "critical": 2}
             for c in candidates:
                 if c.key in existing:
                     self._db.execute(
                         "UPDATE alerts SET message=?, severity=?, title=?, data=?, last_seen=? WHERE id=?",
                         (c.message, c.severity.value, c.title, json.dumps(c.data, default=str), now, existing[c.key]))
+                    if rank.get(c.severity.value, 0) > rank.get(old_sev[c.key], 0):   # nặng lên thì báo lại
+                        self._db.execute("UPDATE alerts SET notified_at=NULL WHERE id=?", (existing[c.key],))
                 else:
                     self._db.execute(
                         """INSERT INTO alerts (broker, account_id, key, rule, severity, title, message, symbol, data, status, first_seen, last_seen)
@@ -177,3 +187,30 @@ class Store:
     def close(self) -> None:
         with self._lock:
             self._db.close()
+
+    # ---------- kv chung và hàng đợi thông báo ----------
+    def kv_get(self, key: str) -> str | None:
+        with self._lock:
+            r = self._db.execute("SELECT value FROM kv WHERE key=?", (key,)).fetchone()
+        return r["value"] if r else None
+
+    def kv_set(self, key: str, value: str) -> None:
+        with self._lock:
+            self._db.execute("INSERT INTO kv (key, value) VALUES (?, ?) ON CONFLICT (key) DO UPDATE SET value=excluded.value",
+                             (key, value))
+            self._db.commit()
+
+    def pending_notifications(self, severities: set[str], brokers: set[str] | None = None) -> list[dict]:
+        """Cảnh báo đang mở chưa được gửi đi, mới nhất sau cùng."""
+        q = "SELECT * FROM alerts WHERE status IN ('open','acked') AND notified_at IS NULL"
+        with self._lock:
+            rows = [dict(r) for r in self._db.execute(q + " ORDER BY first_seen, id").fetchall()]
+        return [r for r in rows if r["severity"] in severities and (brokers is None or r["broker"] in brokers)]
+
+    def mark_notified(self, ids: list[int]) -> None:
+        if not ids:
+            return
+        now = now_vn().isoformat()
+        with self._lock:
+            self._db.executemany("UPDATE alerts SET notified_at=? WHERE id=?", [(now, i) for i in ids])
+            self._db.commit()

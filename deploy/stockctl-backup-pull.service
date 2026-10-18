@@ -1,0 +1,7 @@
+# Chạy trên dev-01: kéo bản sao lưu từ web-01. Cài: xem docs/deploy.md
+[Unit]
+Description=Kéo bản sao lưu stock_control_plan từ web-01
+
+[Service]
+Type=oneshot
+ExecStart=%h/projects/stock_control_plan/scripts/pull-backups.sh

@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     timezone: str = "Asia/Ho_Chi_Minh"
     app_access_token: str | None = Field(default=None)
+    # thông báo Telegram (có thể nhập ở trang Thiết lập thay vì đặt ở đây)
+    telegram_bot_token: str | None = Field(default=None)
+    telegram_chat_id: str | None = Field(default=None)
+    app_public_url: str | None = Field(default=None)     # vd https://stock.pdk.one, để tin nhắn có đường dẫn
 
     tcbs_api_key: str | None = None
     tcbs_custody_code: str | None = None

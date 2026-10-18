@@ -173,3 +173,21 @@ def test_scenario_keeps_tcbs_rtt_definition(rules):
     sold = run_scenario(ScenarioRequest(sell=[{"symbol": "PDR", "quantity": 10_000}]), [pos], 0, b.debt, [b], [], rules)
     c = 0.882 * 315_400_000 / pos.market_value
     assert sold.after.buckets[0].bucket.ratio_pct == pytest.approx(c * 36_500 * 11_200 / (315_400_000 - 112_000_000) * 100)
+
+
+def test_trigger_price_per_symbol():
+    """Giá một mã mà tại đó tài khoản chạm ngưỡng, các mã khác đứng giá."""
+    from app.risk.margin import trigger_price
+    from app.risk.deleverage import ratio_for
+    # một mã, kiểu TCBS: RTT tỷ lệ thuận với giá => giá gọi = giá × duy trì / RTT
+    p = trigger_price("collateral_over_debt", 88.2, 520.8e6, 315.4e6, 520.8e6, 46_500, 85)
+    assert p == pytest.approx(11_200 * 85 / 88.2)
+    # kiểu vốn chủ / giá trị, hai mã: tại giá đó tỷ lệ đúng bằng ngưỡng
+    v_other, q, debt = 100e6, 50_000, 300e6
+    value = v_other + q * 10_000
+    p2 = trigger_price("equity_over_value", (value - debt) / value * 100, value, debt, q * 10_000, q, 35)
+    v2 = v_other + q * p2
+    assert ratio_for("equity_over_value", None, 0, 0, v2, debt) == pytest.approx(35)
+    # không nợ, hoặc mã nhỏ không đủ kéo tài khoản tới ngưỡng
+    assert trigger_price("equity_over_value", 90, 100e6, 0, 10e6, 1000, 35) is None
+    assert trigger_price("equity_over_value", 90, 100e6, 10e6, 1e6, 100, 35) is None

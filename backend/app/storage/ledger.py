@@ -157,6 +157,16 @@ class LedgerRepo:
             raise LedgerError("Không có dòng cổ phiếu này")
         return p
 
+    def remember_prices(self, prices: dict[tuple[str, str], float]) -> None:
+        """Lưu giá gần nhất đã biết của từng dòng (tiểu danh mục, mã), để khi mất phiên broker vẫn tính được
+        giá trị và ký quỹ bằng giá thật gần nhất thay vì giá vốn."""
+        if not prices:
+            return
+        with self._lock:
+            self._db.executemany("UPDATE ledger_positions SET last_price=? WHERE account_id=? AND symbol=?",
+                                 [(p, acc, sym) for (acc, sym), p in prices.items() if p and p > 0])
+            self._db.commit()
+
     def update_position(self, pid: int, *, quantity: int | None = None, avg_cost: float | None = None,
                         last_price: float | None = None, bought_at: date | None = None) -> LedgerPosition:
         p = self._position(pid)

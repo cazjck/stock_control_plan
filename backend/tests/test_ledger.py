@@ -93,7 +93,7 @@ async def test_margin_bucket_per_broker_equity_kind(repo):
     repo.record_purchase(ssi.id, "HPG", 10_000, price=25_000)       # 250 tr
     repo.add_debt(ssi.id, principal=100e6, accrued_interest=0, annual_rate_pct=12)
     ad = LedgerAdapter(repo, lambda: None)
-    positions = [Position(broker="ledger", account_id=ALL, symbol="HPG", quantity=10_000, avg_cost=25_000,
+    positions = [Position(broker="ledger", account_id=ssi.id, symbol="HPG", quantity=10_000, avg_cost=25_000,
                           price=20_000, market_value=200e6)]
     b = (await ad.get_margin(ALL, positions))[0]
     assert b.ratio_kind == "equity_over_value"
@@ -109,7 +109,7 @@ async def test_collateral_ratio_is_rescaled_by_current_value(repo):
     repo.record_purchase(vps.id, "SSI", 4000, price=25_000)          # 100 tr theo giá mua
     repo.add_debt(vps.id, principal=50e6)
     ad = LedgerAdapter(repo, lambda: None)
-    pos = [Position(broker="ledger", account_id=ALL, symbol="SSI", quantity=4000, avg_cost=25_000, price=22_500, market_value=90e6)]
+    pos = [Position(broker="ledger", account_id=vps.id, symbol="SSI", quantity=4000, avg_cost=25_000, price=22_500, market_value=90e6)]
     b = (await ad.get_margin(ALL, pos))[0]
     assert b.ratio_pct == pytest.approx(108.0)                       # 120 × 90/100
     repo.update_account(vps.id, ratio_pct=None)
@@ -279,3 +279,26 @@ async def test_paid_principal_with_unpaid_interest_still_counts(repo):
     repo.add_debt(a.id, principal=1_000, remaining_principal=0, accrued_interest=0)       # đã tất toán hẳn
     loans = await LedgerAdapter(repo, lambda: None).get_loans(ALL)
     assert [(l.remaining_principal, l.accrued_interest) for l in loans] == [(0, 196_845)]
+
+
+
+async def test_margin_uses_each_rows_own_price_and_last_known_price(repo):
+    """Cùng mã ở hai tiểu danh mục: giá của dòng này không được đè giá của dòng kia khi tính ký quỹ.
+    Giá gần nhất được ghi lại để dùng khi mất phiên broker, thay vì giá vốn."""
+    a = repo.create_account("A", maintenance_pct=35, liquidation_pct=25)
+    b = repo.create_account("B", maintenance_pct=35, liquidation_pct=25)
+    repo.record_purchase(a.id, "PDR", 1000, price=20_000)
+    repo.record_purchase(b.id, "PDR", 1000, price=15_000)
+    repo.add_debt(a.id, principal=5e6)
+    repo.add_debt(b.id, principal=5e6)
+    ad = LedgerAdapter(repo, lambda: None)
+    pos = await ad.get_positions(ALL)
+    for p in pos:
+        if p.account_id == a.id:
+            p.price, p.market_value = 11_000, 11_000 * p.quantity      # chỉ dòng A có giá trực tiếp
+    buckets = {x.id: x for x in await ad.get_margin(ALL, pos)}
+    assert buckets[a.id].market_value == 11_000 * 1000
+    assert buckets[b.id].market_value == 15_000 * 1000                   # B dùng giá của chính B, không lấy giá của A
+    ad.remember_prices([p for p in pos if p.price])
+    again = {p.account_id: p.price for p in await ad.get_positions(ALL)}
+    assert again[a.id] == 11_000 and again[b.id] == 15_000              # B giữ giá đã có, không bị ghi đè

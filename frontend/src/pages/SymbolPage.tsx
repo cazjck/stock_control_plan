@@ -91,6 +91,14 @@ function Body({ symbol, data, interval, setInterval }: { symbol: string; data: C
             <Stat label="Rủi ro tới mức cắt lỗ" value={ev.risk_to_stop_value != null ? fmtMoney(ev.risk_to_stop_value) : "—"} sub={ev.distance_to_stop_pct != null ? `cách ${fmtPct(ev.distance_to_stop_pct)}` : "chưa có mức cắt lỗ"} />
           </dl>
         ) : <p className="mt-2 text-sm text-muted">Mã này không nằm trong danh mục hiện tại, chỉ xem biểu đồ.</p>}
+        {ev?.margin_call_price != null && (
+          <p className={cn("mt-3 rounded-md px-3 py-2 text-sm", (ev.margin_call_distance_pct ?? -100) > -5 ? "bg-lead-soft text-lead" : "bg-sea-soft/50")}>
+            Tài khoản{ev.source ? ` ${ev.source}` : ""} bị gọi ký quỹ nếu {symbol} đóng cửa dưới{" "}
+            <span className="num font-semibold">{fmtInt(ev.margin_call_price)}</span> ({fmtPct(ev.margin_call_distance_pct ?? 0, 1, true)})
+            {ev.liquidation_price != null && <>, bị bán xử lý dưới <span className="num font-semibold">{fmtInt(ev.liquidation_price)}</span></>}.
+            <span className="block text-xs opacity-80">Giả định các mã khác trong tài khoản đứng giá.</span>
+          </p>
+        )}
       </div>
 
       <Panel className="p-3 sm:p-4">

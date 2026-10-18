@@ -71,12 +71,17 @@ class LedgerAdapter(BrokerAdapter):
                                      quantity=p.quantity, avg_cost=p.avg_cost)]))
         return sorted(out, key=lambda x: (x.symbol, x.account_id))
 
+    def remember_prices(self, positions: list[Position]) -> None:
+        """Ghi giá gần nhất vào sổ (chỉ SQLite của ứng dụng)."""
+        self._repo.remember_prices({(p.account_id, p.symbol): p.price for p in positions if p.price})
+
     async def get_cash(self, account_id: str) -> CashBalance:
         return CashBalance(account_id=account_id, cash=sum(a.cash for a in self._scope(account_id)))
 
     async def get_margin(self, account_id: str, positions: list[Position]) -> list[MarginBucket]:
         """Mỗi tiểu danh mục có nợ là một nhóm ký quỹ riêng, vì mỗi công ty chứng khoán tính ký quỹ độc lập."""
-        price = {p.symbol: p.price for p in positions if p.price}
+        # giá theo từng dòng (tiểu danh mục, mã): cùng mã ở hai nguồn có thể khác giá khi một nguồn không có giá trực tiếp
+        price = {(p.account_id, p.symbol): p.price for p in positions if p.price}
         debts = defaultdict(float)
         for d in self._repo.debts():
             debts[d.account_id] += d.remaining_principal + d.accrued_interest
@@ -86,7 +91,7 @@ class LedgerAdapter(BrokerAdapter):
             if debt <= 0 and a.ratio_pct is None:
                 continue
             rows = self._repo.positions(a.id)
-            mv = sum(p.quantity * (price.get(p.symbol) or p.last_price or p.avg_cost) for p in rows)
+            mv = sum(p.quantity * (price.get((a.id, p.symbol)) or p.last_price or p.avg_cost) for p in rows)
             status = None
             if a.ratio_kind == "collateral_over_debt":
                 if a.ratio_pct is None:

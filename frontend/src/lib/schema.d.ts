@@ -654,6 +654,81 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/notify/telegram": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Status */
+        get: operations["status_api_notify_telegram_get"];
+        /** Save */
+        put: operations["save_api_notify_telegram_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notify/telegram/discover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Discover
+         * @description Tên bot và các cuộc trò chuyện đã nhắn /start cho bot.
+         */
+        post: operations["discover_api_notify_telegram_discover_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notify/telegram/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Test */
+        post: operations["test_api_notify_telegram_test_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notify/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run
+         * @description Chạy ngay một lượt: làm mới dữ liệu và gửi cảnh báo mới.
+         */
+        post: operations["run_api_notify_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1100,6 +1175,11 @@ export interface components {
              * @default false
              */
             deferred: boolean;
+        };
+        /** DiscoverIn */
+        DiscoverIn: {
+            /** Token */
+            token?: string | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1754,6 +1834,12 @@ export interface components {
             take_profit?: components["schemas"]["TakeProfitPlan"] | null;
             rotation?: components["schemas"]["RotationPlan"] | null;
             hold?: components["schemas"]["HoldStatus"] | null;
+            /** Margin Call Price */
+            margin_call_price?: number | null;
+            /** Liquidation Price */
+            liquidation_price?: number | null;
+            /** Margin Call Distance Pct */
+            margin_call_distance_pct?: number | null;
             technical?: components["schemas"]["TechPlan"] | null;
             /**
              * Lots
@@ -2500,6 +2586,21 @@ export interface components {
              * @default false
              */
             margin_sized: boolean;
+        };
+        /** TelegramIn */
+        TelegramIn: {
+            /** Token */
+            token?: string | null;
+            /** Chat Id */
+            chat_id?: number | string | null;
+            /** Chat Title */
+            chat_title?: string | null;
+            /** Enabled */
+            enabled?: boolean | null;
+            /** Min Severity */
+            min_severity?: ("info" | "warning" | "critical") | null;
+            /** App Url */
+            app_url?: string | null;
         };
         /** UnknownLot */
         UnknownLot: {
@@ -3962,6 +4063,132 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    status_api_notify_telegram_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    save_api_notify_telegram_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TelegramIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    discover_api_notify_telegram_discover_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscoverIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    test_api_notify_telegram_test_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    run_api_notify_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };

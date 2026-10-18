@@ -41,7 +41,25 @@ Theo quy ước trong runbook homelab ("Thêm website khách trên web-01"):
    App chứa danh mục, dư nợ và khoá API TCBS; mã truy cập của app là lớp thứ hai, không nên là lớp duy nhất.
 4. Thêm URL vào uptime check trên VPS nếu muốn (`/api/health` không cần mã).
 
+## Thông báo Telegram
+Cài ở trang **Thiết lập → Thông báo Telegram**: tạo bot bằng @BotFather, mở bot và bấm Start, dán mã bot, bấm Tìm cuộc trò chuyện,
+chọn tên của bạn, Lưu và bật, rồi Gửi tin thử. Mã bot chỉ lưu trong SQLite trên web-01, giao diện chỉ hiện dạng đã che.
+App kiểm tra 5 phút một lần từ 9:00 đến 14:55 các ngày thường, thêm các lượt 8:05, 8:30, 15:05, 15:30.
+Mỗi cảnh báo gửi một lần; cảnh báo nặng lên (ví dụ từ sát ngưỡng sang dưới duy trì) thì gửi lại.
+Phiên TCBS hết hạn hoặc sắp hết hạn trong 2 giờ cũng được báo, mỗi ngày một lần.
+
+## Sao lưu
+- web-01: app sao lưu SQLite lúc 23:30 mỗi đêm vào `backend/data/backups`, giữ 14 bản (quyền 600).
+- dev-01: timer user `stockctl-backup-pull.timer` kéo về `~/backups/stock_control_plan` lúc 23:50, giữ 60 bản.
+  Cài lại nếu cần:
+```bash
+cp deploy/stockctl-backup-pull.* ~/.config/systemd/user/ && systemctl --user daemon-reload && systemctl --user enable --now stockctl-backup-pull.timer
+```
+- Khôi phục: dừng dịch vụ, chép bản sao lưu đè `backend/data/stockctl.sqlite`, chạy lại dịch vụ.
+
 ## Lưu ý
 - web-01 và dev-01 mỗi máy một bản dữ liệu. Sau khi chuyển sang web-01, chỉ ghi Sổ danh mục, kế hoạch, quyết định gồng ở web-01.
 - Phiên TCBS (JWT) sống khoảng 24 giờ. Khi hết hạn, nhập iOTP lại trên giao diện ở `stock.pdk.one`.
+  Trong lúc mất phiên, app dùng giá gần nhất đã biết của từng dòng (ghi lại mỗi lần lấy được giá); dòng chưa từng có giá thì dùng giá mua.
+  Tỷ lệ ký quỹ lúc đó có thể lệch, nên đăng nhập lại càng sớm càng tốt.
 - Tài nguyên: dịch vụ giới hạn 600 MB RAM (`MemoryMax`); web-01 có 2,8 GB dùng chung với aaPanel, MySQL, Redis.

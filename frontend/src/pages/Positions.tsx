@@ -39,6 +39,16 @@ function Headroom({ p }: { p: PositionEval }) {
   );
 }
 
+function MarginCallHint({ p, className }: { p: PositionEval; className?: string }) {
+  if (p.margin_call_price == null || p.margin_call_distance_pct == null) return null;
+  const near = p.margin_call_distance_pct > -5;
+  return (
+    <p className={cn("num text-xs", near ? "font-semibold text-lead" : "text-muted", className)}>
+      Gọi ký quỹ nếu dưới {fmtInt(p.margin_call_price)} ({fmtPct(p.margin_call_distance_pct, 1, true)})
+    </p>
+  );
+}
+
 function HoldHint({ p, className }: { p: PositionEval; className?: string }) {
   const h = p.hold;
   if (!h) return null;
@@ -91,6 +101,7 @@ function RowBody({ p }: { p: PositionEval }) {
       <NextTarget p={p} className="mt-2" />
       <RotationHint p={p} className="mt-1" />
       <HoldHint p={p} className="mt-1" />
+      <MarginCallHint p={p} className="mt-1" />
       {p.status !== "SAFE" && p.actions[0] && <p className="mt-3 line-clamp-3 text-sm">{maskText(p.actions[0])}</p>}
     </>
   );
@@ -166,7 +177,7 @@ function Row({ p, sub }: { p: PositionEval; sub?: boolean }) {
         <span className="font-medium">{fmtPnlPct(p.pnl_pct)}</span><br /><span className="text-xs">{fmtSigned(p.pnl)}</span>
       </td>
       <td className={cn("num px-3 py-2.5 text-right", sub && "text-muted")}>{fmtPct(p.weight_pct, 0)}</td>
-      <td className="px-3 py-2.5"><Headroom p={p} /><NextTarget p={p} className="mt-1" /><RotationHint p={p} className="mt-1" /><HoldHint p={p} className="mt-1" /></td>
+      <td className="px-3 py-2.5"><Headroom p={p} /><NextTarget p={p} className="mt-1" /><RotationHint p={p} className="mt-1" /><HoldHint p={p} className="mt-1" /><MarginCallHint p={p} className="mt-1" /></td>
       <td className={cn("num px-3 py-2.5 text-right", (p.indicators.rsi14 ?? 50) < 40 ? "text-amber" : "")}>{sub ? "" : p.indicators.rsi14 != null ? p.indicators.rsi14.toFixed(0) : "—"}</td>
     </tr>
   );

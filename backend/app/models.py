@@ -364,6 +364,9 @@ class PositionEval(BaseModel):
     take_profit: TakeProfitPlan | None = None
     rotation: RotationPlan | None = None
     hold: HoldStatus | None = None
+    margin_call_price: float | None = None     # giá mã này mà tài khoản chạm ngưỡng duy trì (các mã khác đứng giá)
+    liquidation_price: float | None = None     # giá mã này mà tài khoản chạm ngưỡng xử lý / giải chấp
+    margin_call_distance_pct: float | None = None
     technical: TechPlan | None = None
     lots: list["LotEval"] = []
     unknown_lot: "UnknownLot | None" = None

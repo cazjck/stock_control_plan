@@ -2395,6 +2395,126 @@
      }
     }
    }
+  },
+  "/api/notify/telegram": {
+   "get": {
+    "summary": "Status",
+    "operationId": "status_api_notify_telegram_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "summary": "Save",
+    "operationId": "save_api_notify_telegram_put",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TelegramIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/notify/telegram/discover": {
+   "post": {
+    "summary": "Discover",
+    "description": "Tên bot và các cuộc trò chuyện đã nhắn /start cho bot.",
+    "operationId": "discover_api_notify_telegram_discover_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DiscoverIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/notify/telegram/test": {
+   "post": {
+    "summary": "Test",
+    "operationId": "test_api_notify_telegram_test_post",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/notify/run": {
+   "post": {
+    "summary": "Run",
+    "description": "Chạy ngay một lượt: làm mới dữ liệu và gửi cảnh báo mới.",
+    "operationId": "run_api_notify_run_post",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
   }
  },
  "components": {
@@ -3766,6 +3886,24 @@
     ],
     "title": "DeleverageStep",
     "description": "Một bước bán để hạ nợ margin. Chỉ là khuyến nghị; người dùng tự đặt lệnh."
+   },
+   "DiscoverIn": {
+    "properties": {
+     "token": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Token"
+     }
+    },
+    "type": "object",
+    "title": "DiscoverIn"
    },
    "HTTPValidationError": {
     "properties": {
@@ -5873,6 +6011,39 @@
        }
       ]
      },
+     "margin_call_price": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Margin Call Price"
+     },
+     "liquidation_price": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Liquidation Price"
+     },
+     "margin_call_distance_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Margin Call Distance Pct"
+     },
      "technical": {
       "anyOf": [
        {
@@ -7786,6 +7957,89 @@
     ],
     "title": "TechZone",
     "description": "Một vùng giá do nhiều công cụ kỹ thuật cùng chỉ ra (mục 6d)."
+   },
+   "TelegramIn": {
+    "properties": {
+     "token": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Token"
+     },
+     "chat_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Chat Id"
+     },
+     "chat_title": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Chat Title"
+     },
+     "enabled": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Enabled"
+     },
+     "min_severity": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "info",
+         "warning",
+         "critical"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Severity"
+     },
+     "app_url": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "App Url"
+     }
+    },
+    "type": "object",
+    "title": "TelegramIn"
    },
    "UnknownLot": {
     "properties": {

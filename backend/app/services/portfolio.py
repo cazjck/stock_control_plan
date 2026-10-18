@@ -28,7 +28,7 @@ from ..storage.db import Store
 from ..util import align_price_scale, now_vn
 from ..risk.deleverage import loans_for_bucket
 from ..risk.hold import evaluate_hold
-from ..risk.margin import loan_interest_per_day
+from ..risk.margin import loan_interest_per_day, trigger_price
 from ..risk.rotation import build_rotation, current_cycle
 from ..risk.technical import MarginCtx, build_tech_plan, follow_through
 from ..storage.holds import HoldRepo
@@ -201,6 +201,9 @@ class PortfolioService:
                 p.market_value = q.price * p.quantity
             elif not p.price and p.quantity:
                 p.price = p.market_value / p.quantity if p.market_value else None
+        fresh = [p for p in positions if quotes.get(p.symbol) and quotes[p.symbol].price]
+        if fresh and hasattr(ad, "remember_prices"):
+            ad.remember_prices(fresh)       # Sổ tổng: lưu giá gần nhất để dùng khi mất phiên broker
         notes.extend(_normalize_cost_scale(positions))
         src = ad.short_name or ad.display_name
         for p in positions:
@@ -286,6 +289,7 @@ class PortfolioService:
                     e.urgency += 15
             if self.rotations is not None and has_df and e.data_ok:
                 self._apply_rotation(e, p, df, broker, acc.id, margin, market, rules, today, ftd)
+            self._apply_margin_prices(e, p, acc.id, margin)
             if self.holds is not None:
                 self._apply_hold(e, p, df if has_df else None, broker, acc.id, margin, today)
             evals.append(e)
@@ -298,6 +302,20 @@ class PortfolioService:
         return Context(broker=broker, account=acc, fetched_at=time.monotonic(), as_of=now_vn(), rules=rules,
                        positions=positions, cash=cash, market=market, evals=evals, assets=assets,
                        margin=margin, frames=frames, notes=notes)
+
+    @staticmethod
+    def _apply_margin_prices(e: PositionEval, p: Position, acc_id: str, margin: MarginOverview) -> None:
+        """Giá gọi ký quỹ và giá xử lý của riêng mã này trong tài khoản của dòng."""
+        m = next((x for x in margin.buckets if x.bucket.id in (p.account_id or acc_id, acc_id)), None)
+        if m is None or not m.bucket.debt or not m.bucket.market_value or m.bucket.ratio_pct is None:
+            return
+        b = m.bucket
+        e.margin_call_price = trigger_price(b.ratio_kind, b.ratio_pct, b.market_value, b.debt, e.market_value,
+                                            e.quantity, b.maintenance_pct)
+        e.liquidation_price = trigger_price(b.ratio_kind, b.ratio_pct, b.market_value, b.debt, e.market_value,
+                                            e.quantity, b.liquidation_pct)
+        if e.margin_call_price and e.price:
+            e.margin_call_distance_pct = (e.margin_call_price / e.price - 1) * 100
 
     def _apply_hold(self, e: PositionEval, p: Position, df: pd.DataFrame | None, broker: str, acc_id: str,
                     margin: MarginOverview, today) -> None:

@@ -1,0 +1,9 @@
+[Unit]
+Description=Kéo bản sao lưu stock_control_plan mỗi đêm
+
+[Timer]
+OnCalendar=*-*-* 23:50:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -102,6 +102,12 @@ Còn lại cần để ý:
 
 Stream giá realtime (giao diện đang làm mới mỗi 20 giây trong giờ giao dịch), nhắc qua Telegram, báo cáo sáng, kịch bản từng mã giảm sàn (6.4), đối chiếu kỷ luật từ lịch sử khớp lệnh, tự hiệu chỉnh cắt lỗ theo Minervini (cần nhật ký lệnh đã đóng), xem gộp nhiều broker.
 
+## Thông báo, giá gọi ký quỹ, sao lưu
+
+- **Thông báo Telegram:** cảnh báo mới được gửi vào Telegram của bạn, cài ở trang Thiết lập. Chỉ gửi tin, không đặt lệnh.
+- **Giá gọi ký quỹ từng mã:** trang Danh mục và trang chi tiết ghi rõ "tài khoản bị gọi ký quỹ nếu mã này đóng cửa dưới X", giả định các mã khác đứng giá.
+- **Sao lưu:** SQLite được sao lưu mỗi đêm trên web-01 và kéo về dev-01.
+
 ## Triển khai
 
 App đang chạy trên web-01, ra internet qua Cloudflare Tunnel ở `stock.pdk.one`. Cách cập nhật và cấu hình: [docs/deploy.md](docs/deploy.md).
