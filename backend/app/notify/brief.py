@@ -76,6 +76,10 @@ def brief_text(ctx: Any, kind: str, today: date, *, snapshots: list[dict] | None
                alerts_today: int = 0, link: str = "") -> str:
     title = {"open": "Bản tin đầu phiên", "close": "Bản tin cuối phiên"}.get(kind, "Tình trạng")
     lines = [f"Mớn nước · {title} {today:%d/%m}"]
+    stale = [n for n in getattr(ctx, "notes", []) if "nguồn giá" in n or "giá realtime" in n or "không lấy được nến" in n]
+    if stale:
+        lines += ["", "⚠️ Chưa lấy được giá mới (phiên TCBS hết hạn?). Tỷ lệ ký quỹ dưới đây tính bằng giá cũ, có thể sai. "
+                      "Nhập iOTP trong app."]
     if ctx.market.note:
         lines += ["", f"Thị trường: {ctx.market.note}"]
     if kind == "close":

@@ -489,7 +489,8 @@ class PortfolioService:
         symbol = symbol.upper()
         ctx = await self.context(broker, account_id)
         rows = [e for e in ctx.evals if e.symbol == symbol]
-        target = row_account or (rows[0].account_id if len(rows) == 1 else None)
+        # không chọn tài khoản: lấy nơi đang giữ mã khẩn nhất (evals đã xếp theo mức khẩn)
+        target = row_account or (rows[0].account_id if rows else None)
         if target is None and len(ctx.margin.buckets) == 1:
             target = ctx.margin.buckets[0].bucket.id
         held = next((e for e in rows if e.account_id == target), rows[0] if rows else None)

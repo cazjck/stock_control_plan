@@ -119,3 +119,18 @@ def test_scheduled_brief_respects_switch(client):
     assert client.portal.call(lambda: n.send_brief("open", scheduled=True)) is False
     assert client.post("/api/notify/brief", params={"kind": "open"}).status_code == 200      # gửi tay vẫn được
     assert route.call_count == 1
+
+
+def test_brief_warns_when_prices_are_stale():
+    from datetime import date
+    from types import SimpleNamespace
+    from app.notify.brief import brief_text
+    ctx = SimpleNamespace(notes=["DXG: không lấy được nến (Chưa có nguồn giá cho danh mục tổng.)"], market=NORMAL, evals=[],
+                          frames={}, margin=SimpleNamespace(buckets=[], loans=[], interest_per_day=0), rules=None)
+    import app.notify.brief as b
+    orig = b.todo_items
+    b.todo_items = lambda *a, **k: []
+    try:
+        assert "Chưa lấy được giá mới" in brief_text(ctx, "open", date(2026, 10, 19))
+    finally:
+        b.todo_items = orig
