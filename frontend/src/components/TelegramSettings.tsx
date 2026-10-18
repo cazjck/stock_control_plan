@@ -23,6 +23,42 @@ function Status({ s }: { s: TelegramStatus }) {
   );
 }
 
+/** Bản tin đầu phiên (8:45) và cuối phiên (15:20), cùng các lệnh nhắn cho bot. */
+function Briefs({ s }: { s: TelegramStatus }) {
+  const qc = useQueryClient();
+  const [kind, setKind] = useState<"open" | "close" | "now">("open");
+  const preview = useMutation({ mutationFn: () => api.notifyBrief(kind) });
+  const send = useMutation({ mutationFn: () => api.notifySendBrief(kind), onSuccess: () => void qc.invalidateQueries({ queryKey: ["notify"] }) });
+  const toggle = useMutation({ mutationFn: (brief: boolean) => api.notifySave({ brief }), onSuccess: () => void qc.invalidateQueries({ queryKey: ["notify"] }) });
+  return (
+    <Panel className="space-y-3 p-4" as="div">
+      <h3 className="display text-lg">Bản tin và lệnh</h3>
+      <label className="flex min-h-10 items-center gap-2 text-sm">
+        <input type="checkbox" checked={s.brief} onChange={(e) => toggle.mutate(e.target.checked)} />
+        Gửi bản tin đầu phiên lúc 8:45 và cuối phiên lúc 15:20 các ngày thường
+      </label>
+      <div className="flex flex-wrap items-center gap-2">
+        <select aria-label="Loại bản tin" className={cn(inputCls, "max-w-48")} value={kind} onChange={(e) => setKind(e.target.value as typeof kind)}>
+          <option value="open">Đầu phiên</option><option value="close">Cuối phiên</option><option value="now">Tình trạng hiện tại</option>
+        </select>
+        <Button type="button" onClick={() => preview.mutate()} disabled={preview.isPending}>{preview.isPending ? "Đang soạn…" : "Xem trước"}</Button>
+        <Button type="button" onClick={() => send.mutate()} disabled={send.isPending}>Gửi vào Telegram</Button>
+      </div>
+      {send.isSuccess && <p className="text-sm text-ok">Đã gửi bản tin.</p>}
+      {(preview.isError || send.isError) && <p role="alert" className="text-sm text-lead">{errText(preview.error || send.error)}</p>}
+      {preview.data && <pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded-md bg-sea-soft/40 p-3 text-sm">{preview.data.text}</pre>}
+      <div className="text-sm">
+        <p className="font-medium">Nhắn cho bot:</p>
+        <ul className="mt-1 list-disc space-y-0.5 pl-5 text-muted">
+          <li><span className="num text-ink">/tinhtrang</span>: ký quỹ, giá gọi ký quỹ, việc cần làm</li>
+          <li><span className="num text-ink">/kiemtra PDR 2000</span>: bảng kiểm trước khi mua; thêm giá và nguồn nếu cần, ví dụ <span className="num text-ink">/kiemtra DXG 1000 10200 ssi</span></li>
+        </ul>
+        <p className="mt-1 text-xs text-muted">Bot chỉ trả lời cuộc trò chuyện đã chọn ở trên. Bot không đặt lệnh.</p>
+      </div>
+    </Panel>
+  );
+}
+
 /** Cài thông báo Telegram: tạo bot bằng BotFather, nhắn /start, dán mã bot, chọn cuộc trò chuyện, gửi thử. */
 export function TelegramSettings() {
   const qc = useQueryClient();
@@ -120,6 +156,7 @@ export function TelegramSettings() {
         </Panel>
         <Panel className="p-4" as="div">{s ? <Status s={s} /> : <p className="text-sm text-muted">Đang tải…</p>}</Panel>
       </div>
+      {s?.configured && <Briefs s={s} />}
     </section>
   );
 }

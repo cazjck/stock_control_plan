@@ -14,7 +14,7 @@ function wrap() {
 describe("TelegramSettings", () => {
   it("chưa cài: hướng dẫn BotFather, chưa cho gửi thử", async () => {
     vi.spyOn(api, "notifyStatus").mockResolvedValue({ configured: false, enabled: false, token_masked: null, chat_id: null, chat_title: null,
-      min_severity: "warning", app_url: null, last_sent_at: null, last_error: null, last_run_at: null });
+      min_severity: "warning", app_url: null, brief: true, last_sent_at: null, last_error: null, last_run_at: null });
     wrap();
     expect(await screen.findByText("Chưa cài")).toBeTruthy();
     expect(screen.getByText("@BotFather")).toBeTruthy();
@@ -22,7 +22,7 @@ describe("TelegramSettings", () => {
   });
   it("đã cài: hiện bot đã che mã, nơi nhận và lỗi gần nhất", async () => {
     vi.spyOn(api, "notifyStatus").mockResolvedValue({ configured: true, enabled: true, token_masked: "123456:••••-xyz", chat_id: 42,
-      chat_title: "Khánh", min_severity: "warning", app_url: "https://stock.pdk.one", last_sent_at: null, last_error: "Telegram từ chối: Unauthorized", last_run_at: null });
+      chat_title: "Khánh", min_severity: "warning", app_url: "https://stock.pdk.one", brief: true, last_sent_at: null, last_error: "Telegram từ chối: Unauthorized", last_run_at: null });
     wrap();
     await waitFor(() => expect(screen.getByText("Đang gửi")).toBeTruthy());
     expect(screen.getByText("123456:••••-xyz")).toBeTruthy();

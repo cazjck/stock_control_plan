@@ -79,6 +79,7 @@ function Body({ symbol, data, interval, setInterval }: { symbol: string; data: C
           <h1 className="display text-5xl leading-none">{symbol}</h1>
           {ev && <StatusChip status={ev.status} className="text-sm" />}
           {ev?.mode === "dca" && <span className="eyebrow">DCA</span>}
+          <Link to={`/check?symbol=${symbol}`} className="ml-auto inline-flex min-h-9 items-center rounded-md border border-line px-3 text-sm font-medium hover:bg-sea-soft">Kiểm tra trước khi mua</Link>
         </div>
         {ev && (data.evaluations?.length ?? 0) > 1
           ? <SourceTabs rows={data.evaluations!} current={ev.row_id} />

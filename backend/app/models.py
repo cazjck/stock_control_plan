@@ -798,3 +798,36 @@ class DeleverageOverview(BaseModel):
     safe_proceeds: float
     accounts_unsafe: int
     deferred_sell_value: float = 0.0
+
+
+class PreTradeItem(BaseModel):
+    code: str
+    label: str
+    status: Literal["pass", "warn", "fail", "info"]
+    detail: str
+    rule: str = ""                     # mục trong docs/trading-rules.md
+
+
+class PreTradeMargin(BaseModel):
+    account_label: str
+    ratio_before: float | None
+    ratio_after: float | None          # nếu mua bằng tiền vay (margin)
+    maintenance_pct: float | None
+    drop_before: float | None          # thị trường giảm bao nhiêu % thì bị gọi ký quỹ
+    drop_after: float | None
+    interest_saved_if_repay: float     # cùng số tiền đó dùng trả nợ thì bớt bao nhiêu lãi mỗi ngày
+
+
+class PreTradeCheck(BaseModel):
+    """Bảng kiểm trước khi mua: đối chiếu một lệnh mua dự định với bộ luật. Chỉ tính toán, không đặt lệnh."""
+    symbol: str
+    quantity: int
+    price: float
+    value: float
+    verdict: Literal["blocked", "caution", "ok"]
+    headline: str
+    items: list[PreTradeItem]
+    max_qty: int                       # khối lượng tối đa theo luật (rủi ro 1R, tỷ trọng)
+    stop_price: float
+    margin: PreTradeMargin | None = None
+    suggestion: str = ""

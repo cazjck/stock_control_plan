@@ -10,6 +10,7 @@ import Positions from "./pages/Positions";
 import Margin from "./pages/Margin";
 import Alerts from "./pages/Alerts";
 import Scenarios from "./pages/Scenarios";
+import PreTrade from "./pages/PreTrade";
 import Settings from "./pages/Settings";
 import Ledger from "./pages/Ledger";
 import Board from "./pages/Board";
@@ -38,6 +39,7 @@ export default function App() {
               <Route path="symbol/:symbol" element={<Suspense fallback={<Skeleton className="h-96" />}><SymbolPage /></Suspense>} />
               <Route path="margin" element={<Margin />} />
               <Route path="scenarios" element={<Scenarios />} />
+              <Route path="check" element={<PreTrade />} />
               <Route path="alerts" element={<Alerts />} />
               <Route path="ledger" element={<Ledger />} />
               <Route path="board" element={<Board />} />

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Anchor, BellRing, BookOpen, ChartCandlestick, Eye, EyeOff, Ellipsis, FlaskConical, Landmark, Layers, Lock, RefreshCw, SlidersHorizontal } from "lucide-react";
+import { Anchor, BellRing, BookOpen, ChartCandlestick, Eye, EyeOff, Ellipsis, FlaskConical, Landmark, Layers, Lock, RefreshCw, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { api } from "../lib/api";
 import { ageText, cn, fmtTime } from "../lib/format";
 import { useAlerts, useOverview, useRefreshAll } from "../lib/hooks";
@@ -14,6 +14,7 @@ const NAV = [
   { to: "/board", label: "Bảng giá", icon: ChartCandlestick },
   { to: "/margin", label: "Ký quỹ và nợ", short: "Ký quỹ", icon: Landmark },
   { to: "/scenarios", label: "Kịch bản giả định", short: "Kịch bản", icon: FlaskConical },
+  { to: "/check", label: "Trước khi mua", short: "Kiểm tra", icon: ShieldCheck },
   { to: "/alerts", label: "Cảnh báo", icon: BellRing },
   { to: "/ledger", label: "Sổ danh mục", short: "Sổ", icon: BookOpen },
   { to: "/settings", label: "Thiết lập", icon: SlidersHorizontal },

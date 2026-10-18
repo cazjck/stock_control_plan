@@ -27,7 +27,8 @@ class Telegram:
             raise TelegramError(f"Phương thức {method} không được phép")
         url = f"{API}/bot{self._token}/{method}"
         own = self._client is None
-        client = self._client or httpx.AsyncClient(timeout=10)
+        wait = int((params or {}).get("timeout", 0))          # getUpdates chờ lâu (long polling)
+        client = self._client or httpx.AsyncClient(timeout=10 + wait)
         try:
             if method == "sendMessage":
                 r = await client.post(url, json=params or {})
@@ -57,6 +58,12 @@ class Telegram:
                 name = c.get("title") or " ".join(x for x in (c.get("first_name"), c.get("last_name")) if x) or c.get("username") or str(c["id"])
                 out[c["id"]] = {"id": c["id"], "type": c.get("type", ""), "title": name}
         return list(out.values())
+
+    async def updates(self, offset: int | None, wait: int = 25) -> list[dict[str, Any]]:
+        params: dict[str, Any] = {"timeout": wait, "allowed_updates": '["message"]'}
+        if offset is not None:
+            params["offset"] = offset
+        return await self.call("getUpdates", params) or []
 
     async def send(self, chat_id: int | str, text: str) -> None:
         if len(text) > MAX_LEN:

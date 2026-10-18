@@ -3,6 +3,7 @@ mới hoặc nặng lên. Cấu hình lưu trong SQLite của ứng dụng (kv '
 Chỉ gửi tin cho người dùng; không đặt lệnh."""
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from datetime import timedelta
@@ -12,6 +13,7 @@ from ..brokers.base import AuthRequired, BrokerError
 from ..services.portfolio import PortfolioService
 from ..storage.db import Store
 from ..util import now_vn
+from .brief import HELP, brief_text, pretrade_text
 from .telegram import Telegram, TelegramError
 
 log = logging.getLogger(__name__)
@@ -43,11 +45,12 @@ class NotifyService:
         c.setdefault("enabled", bool(c.get("token") and c.get("chat_id")))
         c.setdefault("min_severity", "warning")
         c.setdefault("app_url", self._env_url)
+        c.setdefault("brief", True)
         return c
 
     def save(self, patch: dict[str, Any]) -> dict[str, Any]:
         c = self.config()
-        for k in ("token", "chat_id", "chat_title", "enabled", "min_severity", "app_url"):
+        for k in ("token", "chat_id", "chat_title", "enabled", "min_severity", "app_url", "brief"):
             if k in patch and patch[k] is not None:
                 c[k] = patch[k]
         if c.get("min_severity") not in LEVELS:
@@ -64,7 +67,7 @@ class NotifyService:
         c = self.config()
         return {"configured": bool(c.get("token") and c.get("chat_id")), "enabled": bool(c.get("enabled")),
                 "token_masked": mask(c.get("token")), "chat_id": c.get("chat_id"), "chat_title": c.get("chat_title"),
-                "min_severity": c.get("min_severity"), "app_url": c.get("app_url"),
+                "min_severity": c.get("min_severity"), "app_url": c.get("app_url"), "brief": bool(c.get("brief")),
                 "last_sent_at": c.get("last_sent_at"), "last_error": c.get("last_error"), "last_run_at": c.get("last_run_at")}
 
     def client(self, token: str | None = None) -> Telegram:
@@ -174,3 +177,105 @@ class NotifyService:
         self.store.mark_notified([a["id"] for a in alerts])
         self._record(last_sent_at=now_vn().isoformat(), last_error=None)
         return len(alerts)
+
+    # ---------- bản tin ----------
+    async def _main(self):
+        targets = await self._targets()
+        if not targets:
+            return None
+        broker, acc = targets[0]
+        return broker, acc, await self.portfolio.context(broker, acc)
+
+    async def brief(self, kind: str) -> str:
+        got = await self._main()
+        if got is None:
+            return "Chưa có tài khoản nào để báo cáo. Đăng nhập broker hoặc thêm Sổ danh mục."
+        broker, acc, ctx = got
+        today = now_vn().date()
+        snaps = self.store.list_snapshots(broker, ctx.account.id, 7) if kind == "close" else None
+        alerts_today = sum(1 for a in self.store.list_alerts(broker=broker, limit=200)
+                           if str(a.first_seen)[:10] == today.isoformat()) if kind == "close" else 0
+        return brief_text(ctx, kind, today, snapshots=snaps, alerts_today=alerts_today, link=self._link("/"))
+
+    async def send_brief(self, kind: str, *, scheduled: bool = False) -> bool:
+        c = self.config()
+        if not (c.get("token") and c.get("chat_id")) or (scheduled and not (c.get("enabled") and c.get("brief"))):
+            return False
+        try:
+            text = await self.brief(kind)
+        except AuthRequired:
+            text = "Mớn nước: phiên broker đã hết hạn nên chưa có bản tin. Nhập iOTP trong app." + self._link("/settings")
+        await self.client().send(c["chat_id"], text)
+        self._record(last_sent_at=now_vn().isoformat(), last_error=None)
+        return True
+
+    # ---------- lệnh Telegram ----------
+    async def handle_command(self, text: str) -> str:
+        parts = (text or "").strip().split()
+        if not parts:
+            return HELP
+        cmd = parts[0].split("@")[0].lower()
+        if cmd in ("/tinhtrang", "/status"):
+            try:
+                return await self.brief("now")
+            except AuthRequired:
+                return "Phiên broker đã hết hạn. Nhập iOTP trong app rồi thử lại."
+        if cmd in ("/kiemtra", "/check"):
+            args = parts[1:]
+            if not args:
+                return "Cú pháp: /kiemtra MÃ [SỐ_LƯỢNG] [GIÁ] [NGUỒN], ví dụ /kiemtra PDR 2000"
+            symbol = args[0].upper()
+            nums = [a.replace(".", "").replace(",", "") for a in args[1:] if a.replace(".", "").replace(",", "").isdigit()]
+            words = [a.lower() for a in args[1:] if not a.replace(".", "").replace(",", "").isdigit()]
+            qty = int(nums[0]) if nums else None
+            price = float(nums[1]) if len(nums) > 1 else None
+            got = await self._main()
+            if got is None:
+                return "Chưa có tài khoản nào để kiểm tra."
+            broker, acc, ctx = got
+            row_acc = None
+            if words:
+                hit = next((m.bucket.id for m in ctx.margin.buckets
+                            if words[0] in (m.bucket.source or "").lower() or m.bucket.id.lower().startswith(words[0])), None)
+                row_acc = hit
+            try:
+                return pretrade_text(await self.portfolio.pretrade(broker, acc, symbol, qty, price, row_acc))
+            except AuthRequired:
+                return "Phiên broker đã hết hạn. Nhập iOTP trong app rồi thử lại."
+            except (ValueError, BrokerError) as e:
+                return f"Không kiểm tra được {symbol}: {getattr(e, 'message', None) or e}"
+        return HELP
+
+    async def poll_once(self, wait: int = 25) -> int:
+        """Đọc tin nhắn mới gửi cho bot và trả lời. Chỉ nhận lệnh từ cuộc trò chuyện đã chọn."""
+        c = self.config()
+        if not (c.get("enabled") and c.get("token") and c.get("chat_id")):
+            return 0
+        raw = self.store.kv_get("telegram_offset")
+        offset = int(raw) if raw else None
+        bot = self.client()
+        handled = 0
+        for u in await bot.updates(offset, wait):
+            self.store.kv_set("telegram_offset", str(int(u["update_id"]) + 1))
+            msg = u.get("message") or {}
+            chat = (msg.get("chat") or {}).get("id")
+            if str(chat) != str(c["chat_id"]) or not msg.get("text"):
+                continue
+            reply = await self.handle_command(msg["text"])
+            await bot.send(chat, reply)
+            handled += 1
+        return handled
+
+    async def poll_forever(self) -> None:
+        while True:
+            try:
+                c = self.config()
+                if c.get("enabled") and c.get("token") and c.get("chat_id"):
+                    await self.poll_once()
+                else:
+                    await asyncio.sleep(30)
+            except asyncio.CancelledError:
+                raise
+            except Exception as e:  # noqa: BLE001 - mất mạng, Telegram lỗi: thử lại sau
+                log.warning("đọc lệnh Telegram lỗi: %s", e)
+                await asyncio.sleep(15)

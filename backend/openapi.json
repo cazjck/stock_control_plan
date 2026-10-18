@@ -637,6 +637,128 @@
     }
    }
   },
+  "/api/pretrade": {
+   "get": {
+    "summary": "Pretrade",
+    "description": "Bảng kiểm trước khi mua (chỉ tính toán, không đặt lệnh).",
+    "operationId": "pretrade_api_pretrade_get",
+    "parameters": [
+     {
+      "name": "symbol",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Symbol"
+      }
+     },
+     {
+      "name": "qty",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer",
+         "exclusiveMinimum": 0
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Qty"
+      }
+     },
+     {
+      "name": "price",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "number",
+         "exclusiveMinimum": 0
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Price"
+      }
+     },
+     {
+      "name": "row_account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Row Account"
+      }
+     },
+     {
+      "name": "broker",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Broker"
+      }
+     },
+     {
+      "name": "account",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Account"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PreTradeCheck"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/api/scenarios/run": {
    "post": {
     "summary": "Scenario Run",
@@ -2510,6 +2632,91 @@
       "content": {
        "application/json": {
         "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/notify/brief": {
+   "get": {
+    "summary": "Brief Preview",
+    "description": "Xem trước bản tin, không gửi.",
+    "operationId": "brief_preview_api_notify_brief_get",
+    "parameters": [
+     {
+      "name": "kind",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "open",
+        "close",
+        "now"
+       ],
+       "type": "string",
+       "default": "now",
+       "title": "Kind"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "summary": "Brief Send",
+    "operationId": "brief_send_api_notify_brief_post",
+    "parameters": [
+     {
+      "name": "kind",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "open",
+        "close",
+        "now"
+       ],
+       "type": "string",
+       "default": "now",
+       "title": "Kind"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
        }
       }
      }
@@ -6528,6 +6735,200 @@
     ],
     "title": "PositionsResponse"
    },
+   "PreTradeCheck": {
+    "properties": {
+     "symbol": {
+      "type": "string",
+      "title": "Symbol"
+     },
+     "quantity": {
+      "type": "integer",
+      "title": "Quantity"
+     },
+     "price": {
+      "type": "number",
+      "title": "Price"
+     },
+     "value": {
+      "type": "number",
+      "title": "Value"
+     },
+     "verdict": {
+      "type": "string",
+      "enum": [
+       "blocked",
+       "caution",
+       "ok"
+      ],
+      "title": "Verdict"
+     },
+     "headline": {
+      "type": "string",
+      "title": "Headline"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/PreTradeItem"
+      },
+      "type": "array",
+      "title": "Items"
+     },
+     "max_qty": {
+      "type": "integer",
+      "title": "Max Qty"
+     },
+     "stop_price": {
+      "type": "number",
+      "title": "Stop Price"
+     },
+     "margin": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PreTradeMargin"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "suggestion": {
+      "type": "string",
+      "title": "Suggestion",
+      "default": ""
+     }
+    },
+    "type": "object",
+    "required": [
+     "symbol",
+     "quantity",
+     "price",
+     "value",
+     "verdict",
+     "headline",
+     "items",
+     "max_qty",
+     "stop_price"
+    ],
+    "title": "PreTradeCheck",
+    "description": "Bảng kiểm trước khi mua: đối chiếu một lệnh mua dự định với bộ luật. Chỉ tính toán, không đặt lệnh."
+   },
+   "PreTradeItem": {
+    "properties": {
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "pass",
+       "warn",
+       "fail",
+       "info"
+      ],
+      "title": "Status"
+     },
+     "detail": {
+      "type": "string",
+      "title": "Detail"
+     },
+     "rule": {
+      "type": "string",
+      "title": "Rule",
+      "default": ""
+     }
+    },
+    "type": "object",
+    "required": [
+     "code",
+     "label",
+     "status",
+     "detail"
+    ],
+    "title": "PreTradeItem"
+   },
+   "PreTradeMargin": {
+    "properties": {
+     "account_label": {
+      "type": "string",
+      "title": "Account Label"
+     },
+     "ratio_before": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio Before"
+     },
+     "ratio_after": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ratio After"
+     },
+     "maintenance_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Maintenance Pct"
+     },
+     "drop_before": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Drop Before"
+     },
+     "drop_after": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Drop After"
+     },
+     "interest_saved_if_repay": {
+      "type": "number",
+      "title": "Interest Saved If Repay"
+     }
+    },
+    "type": "object",
+    "required": [
+     "account_label",
+     "ratio_before",
+     "ratio_after",
+     "maintenance_pct",
+     "drop_before",
+     "drop_after",
+     "interest_saved_if_repay"
+    ],
+    "title": "PreTradeMargin"
+   },
    "PurchaseIn": {
     "properties": {
      "symbol": {
@@ -8036,6 +8437,17 @@
        }
       ],
       "title": "App Url"
+     },
+     "brief": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Brief"
      }
     },
     "type": "object",

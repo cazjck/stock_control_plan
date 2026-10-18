@@ -1,6 +1,8 @@
 """FastAPI app: dashboard quản trị rủi ro chứng khoán, CHỈ ĐỌC."""
 from __future__ import annotations
 
+import asyncio
+
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -61,6 +63,13 @@ async def notify_cycle(notify: NotifyService) -> None:
         log.error("thông báo lỗi: %s", e)
 
 
+async def brief_job(notify: NotifyService, kind: str) -> None:
+    try:
+        await notify.send_brief(kind, scheduled=True)
+    except Exception as e:  # noqa: BLE001
+        log.error("bản tin %s lỗi: %s", kind, e)
+
+
 def daily_backup(data_dir) -> None:
     """Mục vận hành: sao lưu SQLite mỗi đêm, giữ 14 bản."""
     from .services.backup import backup_sqlite
@@ -99,12 +108,18 @@ async def lifespan(app: FastAPI):
                   args=[notify], id="notify_intraday", replace_existing=True, max_instances=1, coalesce=True)
     sched.add_job(notify_cycle, CronTrigger(day_of_week="mon-fri", hour="8,15", minute="30,5", timezone=s.timezone),
                   args=[notify], id="notify_edges", replace_existing=True, max_instances=1, coalesce=True)
+    sched.add_job(brief_job, CronTrigger(day_of_week="mon-fri", hour=8, minute=45, timezone=s.timezone),
+                  args=[notify, "open"], id="brief_open", replace_existing=True)
+    sched.add_job(brief_job, CronTrigger(day_of_week="mon-fri", hour=15, minute=20, timezone=s.timezone),
+                  args=[notify, "close"], id="brief_close", replace_existing=True)
     sched.add_job(daily_backup, CronTrigger(hour=23, minute=30, timezone=s.timezone),
                   args=[s.resolved_data_dir], id="daily_backup", replace_existing=True)
     sched.start()
+    poller = asyncio.create_task(notify.poll_forever())
     try:
         yield
     finally:
+        poller.cancel()
         sched.shutdown(wait=False)
         await app.state.streams.close()
         for a in adapters.values():

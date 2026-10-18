@@ -107,6 +107,9 @@ Stream giá realtime (giao diện đang làm mới mỗi 20 giây trong giờ gi
 - **Thông báo Telegram:** cảnh báo mới được gửi vào Telegram của bạn, cài ở trang Thiết lập. Chỉ gửi tin, không đặt lệnh.
 - **Giá gọi ký quỹ từng mã:** trang Danh mục và trang chi tiết ghi rõ "tài khoản bị gọi ký quỹ nếu mã này đóng cửa dưới X", giả định các mã khác đứng giá.
 - **Sao lưu:** SQLite được sao lưu mỗi đêm trên web-01 và kéo về dev-01.
+- **Bản tin đầu và cuối phiên:** 8:45 và 15:20 các ngày thường, gửi qua Telegram: ký quỹ, giá gọi ký quỹ, tối đa ba việc cần làm; cuối phiên thêm biến động trong ngày.
+- **Trước khi mua:** trang Trước khi mua, hoặc nhắn `/kiemtra PDR 2000` cho bot. App đối chiếu lệnh mua dự định với bộ luật
+  (thị trường, vốn, số mã, mua bình quân giá xuống, ký quỹ, giai đoạn xu hướng, tín hiệu vào lệnh, số lệnh mỗi ngày) và trả lời được mua, cân nhắc hay không nên mua.
 
 ## Triển khai
 

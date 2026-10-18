@@ -203,6 +203,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/pretrade": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Pretrade
+         * @description Bảng kiểm trước khi mua (chỉ tính toán, không đặt lệnh).
+         */
+        get: operations["pretrade_api_pretrade_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/scenarios/run": {
         parameters: {
             query?: never;
@@ -723,6 +743,27 @@ export interface paths {
          * @description Chạy ngay một lượt: làm mới dữ liệu và gửi cảnh báo mới.
          */
         post: operations["run_api_notify_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notify/brief": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Brief Preview
+         * @description Xem trước bản tin, không gửi.
+         */
+        get: operations["brief_preview_api_notify_brief_get"];
+        put?: never;
+        /** Brief Send */
+        post: operations["brief_send_api_notify_brief_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1989,6 +2030,75 @@ export interface components {
             /** Notes */
             notes: string[];
         };
+        /**
+         * PreTradeCheck
+         * @description Bảng kiểm trước khi mua: đối chiếu một lệnh mua dự định với bộ luật. Chỉ tính toán, không đặt lệnh.
+         */
+        PreTradeCheck: {
+            /** Symbol */
+            symbol: string;
+            /** Quantity */
+            quantity: number;
+            /** Price */
+            price: number;
+            /** Value */
+            value: number;
+            /**
+             * Verdict
+             * @enum {string}
+             */
+            verdict: "blocked" | "caution" | "ok";
+            /** Headline */
+            headline: string;
+            /** Items */
+            items: components["schemas"]["PreTradeItem"][];
+            /** Max Qty */
+            max_qty: number;
+            /** Stop Price */
+            stop_price: number;
+            margin?: components["schemas"]["PreTradeMargin"] | null;
+            /**
+             * Suggestion
+             * @default
+             */
+            suggestion: string;
+        };
+        /** PreTradeItem */
+        PreTradeItem: {
+            /** Code */
+            code: string;
+            /** Label */
+            label: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pass" | "warn" | "fail" | "info";
+            /** Detail */
+            detail: string;
+            /**
+             * Rule
+             * @default
+             */
+            rule: string;
+        };
+        /** PreTradeMargin */
+        PreTradeMargin: {
+            /** Account Label */
+            account_label: string;
+            /** Ratio Before */
+            ratio_before: number | null;
+            /** Ratio After */
+            ratio_after: number | null;
+            /** Maintenance Pct */
+            maintenance_pct: number | null;
+            /** Drop Before */
+            drop_before: number | null;
+            /** Drop After */
+            drop_after: number | null;
+            /** Interest Saved If Repay */
+            interest_saved_if_repay: number;
+        };
         /** PurchaseIn */
         PurchaseIn: {
             /** Symbol */
@@ -2601,6 +2711,8 @@ export interface components {
             min_severity?: ("info" | "warning" | "critical") | null;
             /** App Url */
             app_url?: string | null;
+            /** Brief */
+            brief?: boolean | null;
         };
         /** UnknownLot */
         UnknownLot: {
@@ -2956,6 +3068,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DeleverageOverview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    pretrade_api_pretrade_get: {
+        parameters: {
+            query: {
+                symbol: string;
+                qty?: number | null;
+                price?: number | null;
+                row_account?: string | null;
+                broker?: string | null;
+                account?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreTradeCheck"];
                 };
             };
             /** @description Validation Error */
@@ -4189,6 +4337,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    brief_preview_api_notify_brief_get: {
+        parameters: {
+            query?: {
+                kind?: "open" | "close" | "now";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    brief_send_api_notify_brief_post: {
+        parameters: {
+            query?: {
+                kind?: "open" | "close" | "now";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

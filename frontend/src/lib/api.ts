@@ -1,11 +1,11 @@
 export type Severity = "info" | "warning" | "critical";
 export interface TelegramStatus {
   configured: boolean; enabled: boolean; token_masked: string | null; chat_id: number | string | null; chat_title: string | null;
-  min_severity: Severity; app_url: string | null; last_sent_at: string | null; last_error: string | null; last_run_at: string | null;
+  min_severity: Severity; app_url: string | null; brief: boolean; last_sent_at: string | null; last_error: string | null; last_run_at: string | null;
 }
 
 import type {
-  BoardResponse, DeleverageOverview, HoldDecision, Lot, RotationTrade, LedgerAccount, LedgerAccountIn, LedgerDebt, LedgerDebtIn, LedgerPurchaseIn, LedgerView,
+  BoardResponse, DeleverageOverview, HoldDecision, Lot, PreTradeCheck, RotationTrade, LedgerAccount, LedgerAccountIn, LedgerDebt, LedgerDebtIn, LedgerPurchaseIn, LedgerView,
   Account, AlertRecord, BrokerStatus, ChartResponse, MarginOverview, Overview, PositionPlan, PositionsResponse,
   RuleChange, RulesResponse, ScenarioRequest, ScenarioResult, SessionInfo, Snapshot, SizingPlan,
 } from "./types";
@@ -124,11 +124,15 @@ export const api = {
     req<HoldDecision>("PUT", `/holds${qs(sel(s))}`, body),
   holdDelete: (id: number) => req<{ ok: boolean }>("DELETE", `/holds/${id}`),
   notifyStatus: () => req<TelegramStatus>("GET", "/notify/telegram"),
-  notifySave: (body: Partial<{ token: string; chat_id: number | string; chat_title: string; enabled: boolean; min_severity: Severity; app_url: string }>) =>
+  notifySave: (body: Partial<{ token: string; chat_id: number | string; chat_title: string; enabled: boolean; min_severity: Severity; app_url: string; brief: boolean }>) =>
     req<TelegramStatus>("PUT", "/notify/telegram", body),
   notifyDiscover: (token?: string) => req<{ bot: string; chats: { id: number; type: string; title: string }[] }>("POST", "/notify/telegram/discover", { token: token || null }),
   notifyTest: () => req<TelegramStatus>("POST", "/notify/telegram/test"),
   notifyRun: () => req<TelegramStatus & { sent: number }>("POST", "/notify/run"),
+  notifyBrief: (kind: "open" | "close" | "now") => req<{ text: string }>("GET", `/notify/brief${qs({ kind })}`),
+  notifySendBrief: (kind: "open" | "close" | "now") => req<TelegramStatus>("POST", `/notify/brief${qs({ kind })}`),
+  pretrade: (s: Sel, q: { symbol: string; qty?: number; price?: number; row_account?: string }) =>
+    req<PreTradeCheck>("GET", `/pretrade${qs({ ...sel(s), ...q })}`),
   ledgerSync: (broker: string) =>
     req<{ broker: string; synced_at: string; accounts: string[]; positions: number; debts: number }>("POST", `/ledger/sync/${broker}`),
 };

@@ -93,3 +93,5 @@ export type HoldDecision = S["HoldDecision"];
 export type HoldStatus = S["HoldStatus"];
 export type TechPlan = S["TechPlan"];
 export type TechZone = S["TechZone"];
+export type PreTradeCheck = S["PreTradeCheck"];
+export type PreTradeItem = S["PreTradeItem"];

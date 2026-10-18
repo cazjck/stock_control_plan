@@ -47,6 +47,8 @@ chọn tên của bạn, Lưu và bật, rồi Gửi tin thử. Mã bot chỉ l�
 App kiểm tra 5 phút một lần từ 9:00 đến 14:55 các ngày thường, thêm các lượt 8:05, 8:30, 15:05, 15:30.
 Mỗi cảnh báo gửi một lần; cảnh báo nặng lên (ví dụ từ sát ngưỡng sang dưới duy trì) thì gửi lại.
 Phiên TCBS hết hạn hoặc sắp hết hạn trong 2 giờ cũng được báo, mỗi ngày một lần.
+Bản tin đầu phiên 8:45 và cuối phiên 15:20 (tắt được trong cùng mục). Bot nhận lệnh `/tinhtrang` và `/kiemtra MÃ [SỐ_LƯỢNG] [GIÁ] [NGUỒN]`,
+chỉ trả lời cuộc trò chuyện đã chọn; app đọc tin nhắn bằng long polling nên không cần mở cổng hay webhook.
 
 ## Sao lưu
 - web-01: app sao lưu SQLite lúc 23:30 mỗi đêm vào `backend/data/backups`, giữ 14 bản (quyền 600).

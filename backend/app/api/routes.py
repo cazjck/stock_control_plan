@@ -13,7 +13,7 @@ from pydantic import BaseModel, ValidationError
 
 from ..config import Settings
 from ..models import (
-    DeleverageOverview,
+    DeleverageOverview, PreTradeCheck,
     BoardQuote, BoardResponse,
     Account, AlertRecord, Interval, MarginOverview, MarketInfo, OverviewResponse, PositionEval, PositionPlan,
     ScenarioRequest, ScenarioResult, SessionInfo, SizingPlan,
@@ -160,6 +160,17 @@ async def margin_plan(broker: str | None = None, account: str | None = None, svc
 
 
 # ---------- kịch bản giả định và máy tính khối lượng (chỉ tính toán) ----------
+
+@router.get("/pretrade", response_model=PreTradeCheck)
+async def pretrade(symbol: str, qty: int | None = Query(None, gt=0), price: float | None = Query(None, gt=0),
+                   row_account: str | None = None, broker: str | None = None, account: str | None = None,
+                   svc: PortfolioService = Depends(service)):
+    """Bảng kiểm trước khi mua (chỉ tính toán, không đặt lệnh)."""
+    try:
+        return await svc.pretrade(_broker(svc, broker), account, symbol, qty, price, row_account)
+    except ValueError as e:
+        raise HTTPException(422, {"code": "PRETRADE", "message": str(e)}) from None
+
 
 @router.post("/scenarios/run", response_model=ScenarioResult)
 async def scenario_run(body: ScenarioRequest, broker: str | None = None, account: str | None = None,

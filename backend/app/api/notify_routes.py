@@ -28,6 +28,7 @@ class TelegramIn(BaseModel):
     enabled: bool | None = None
     min_severity: Literal["info", "warning", "critical"] | None = None
     app_url: str | None = Field(default=None, max_length=200)
+    brief: bool | None = None
 
 
 class DiscoverIn(BaseModel):
@@ -73,3 +74,20 @@ async def test(n: NotifyService = Depends(svc)):
 async def run(n: NotifyService = Depends(svc)):
     """Chạy ngay một lượt: làm mới dữ liệu và gửi cảnh báo mới."""
     return {"sent": await n.run_cycle(), **n.status()}
+
+
+@router.get("/brief")
+async def brief_preview(kind: Literal["open", "close", "now"] = "now", n: NotifyService = Depends(svc)):
+    """Xem trước bản tin, không gửi."""
+    return {"text": await n.brief(kind)}
+
+
+@router.post("/brief")
+async def brief_send(kind: Literal["open", "close", "now"] = "now", n: NotifyService = Depends(svc)):
+    try:
+        ok = await n.send_brief(kind)
+    except TelegramError as e:
+        raise _err(e) from None
+    if not ok:
+        raise _err(TelegramError("Chưa cài Telegram"))
+    return n.status()

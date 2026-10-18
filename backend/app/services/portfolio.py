@@ -15,7 +15,7 @@ from ..models import (
     Account, AlertRecord, AlertSeverity, AssetOverview, Candle, CashBalance, Interval, MarginOverview,
     BoardIndex, BoardQuote, BoardResponse, BoardRow,
     MarketInfo, OverviewResponse, Position, PositionEval, PositionPlan, PositionStatus, SourceShare, ScenarioRequest,
-    ScenarioResult, SizingPlan,
+    ScenarioResult, SizingPlan, PreTradeCheck,
 )
 from ..risk.alerts import build_candidates
 from ..risk.engine import evaluate_position, market_state
@@ -29,6 +29,7 @@ from ..util import align_price_scale, now_vn
 from ..risk.deleverage import loans_for_bucket
 from ..risk.hold import evaluate_hold
 from ..risk.margin import loan_interest_per_day, trigger_price
+from ..risk.pretrade import build_pretrade
 from ..risk.rotation import build_rotation, current_cycle
 from ..risk.technical import MarginCtx, build_tech_plan, follow_through
 from ..storage.holds import HoldRepo
@@ -480,6 +481,45 @@ class PortfolioService:
         return size_position(symbol=symbol, price=price, atr14=atr14, capital=ctx.cash.cash,
                              positions_count=sum(1 for p in ctx.positions if p.quantity > 0), held=held,
                              rules=ctx.rules, market=ctx.market, stop=stop)
+
+    async def pretrade(self, broker: str, account_id: str | None, symbol: str, quantity: int | None,
+                       price: float | None, row_account: str | None = None) -> PreTradeCheck:
+        """Bảng kiểm trước khi mua. row_account: tiểu khoản dự định mua (Sổ tổng); để trống thì lấy nơi đang giữ mã,
+        hoặc tài khoản ký quỹ duy nhất."""
+        symbol = symbol.upper()
+        ctx = await self.context(broker, account_id)
+        rows = [e for e in ctx.evals if e.symbol == symbol]
+        target = row_account or (rows[0].account_id if len(rows) == 1 else None)
+        if target is None and len(ctx.margin.buckets) == 1:
+            target = ctx.margin.buckets[0].bucket.id
+        held = next((e for e in rows if e.account_id == target), rows[0] if rows else None)
+        px = price or (held.price if held else None)
+        series = None
+        df = ctx.frames.get(symbol)
+        if df is None or not len(df):
+            try:
+                cs = await self.candles(broker, symbol, Interval.D1, 300)
+                df = to_frame(cs) if cs else None
+            except AuthRequired:
+                raise
+            except BrokerError:
+                df = None
+        if df is not None and len(df):
+            series = compute_series(df, ctx.rules.stop_loss.atr_period, ctx.rules.take_profit.trailing.atr_period)
+            px = px or float(series["close"].iloc[-1])
+        if not px:
+            raise ValueError("Chưa có giá của mã này, hãy nhập giá dự định mua")
+        sizing = await self.sizing(broker, account_id, symbol, px)
+        tech = held.technical if held and held.technical else (
+            build_tech_plan(series, px, 100, px, ctx.rules) if series is not None else None)
+        m = next((x for x in ctx.margin.buckets if x.bucket.id in (target, account_id)), None)
+        loans = loans_for_bucket(m.bucket.source, len(ctx.margin.buckets), ctx.margin.loans) if m else []
+        today = now_vn().date()
+        buys = 0
+        if self.lots is not None:
+            buys = sum(1 for l in self.lots.repo.lots(broker) if l.buy_date == today)
+        return build_pretrade(symbol=symbol, quantity=quantity, price=px, sizing=sizing, held=held, tech=tech,
+                              series=series, margin=m, loans=loans, buys_today=buys, rules=ctx.rules)
 
     # ---------- bảng giá ----------
 
