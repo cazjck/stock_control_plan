@@ -24,7 +24,7 @@ Sao chép `backend/.env.example` thành `backend/.env` rồi điền khóa. Khó
 | Broker | Lấy khóa ở đâu | Cần nhập hằng ngày |
 |---|---|---|
 | **TCBS** | TCInvest, Tiện ích, iFlash Open API (miễn phí). Điền `TCBS_API_KEY` và `TCBS_CUSTODY_CODE` (số lưu ký, dạng 105C…) | Mã **iOTP** từ app TCInvest, nhập ở trang Thiết lập. Token sống tối đa 8 giờ |
-| **DNSE** | Entrade X, Họ tên, Thông tin tài khoản, LightSpeed API. Điền `DNSE_API_KEY` và `DNSE_API_SECRET` (Secret chỉ hiện một lần) | Không. Đọc dữ liệu không cần OTP |
+| **DNSE** | Entrade X, Họ tên, Thông tin tài khoản, LightSpeed API. Điền `DNSE_API_KEY` và `DNSE_API_SECRET` (Secret chỉ hiện một lần), thêm `dnse` vào `BROKERS` | Không. Đọc dữ liệu không cần OTP, khoá không hết hạn |
 
 Đặt `BROKERS=tcbs`, `BROKERS=dnse` hoặc `BROKERS=tcbs,dnse`. Chọn broker và tiểu khoản ở thanh trên cùng.
 Nếu mở truy cập từ máy khác, đặt `APP_ACCESS_TOKEN` để mọi request phải kèm mã. **Không đưa ứng dụng ra Internet công cộng.** Mặc định chỉ lắng nghe `127.0.0.1`.
@@ -87,7 +87,14 @@ Khác biệt lớn nhất giữa các broker là margin: TCBS tính một tỷ l
 
 **RTT của TCBS là tài sản đảm bảo trên dư nợ**, không phải vốn chủ trên giá trị tài sản (ban đầu 100, duy trì 85, giải chấp 80). Khoảng cách tới gọi ký quỹ của TCBS tính theo `x = 1 − duy trì / RTT`. Công thức giả định toàn bộ tài sản đảm bảo giảm đều theo giá, nên hãy đối chiếu con số "Giảm thêm X% là bị gọi ký quỹ" với app TCInvest trước khi dựa vào nó.
 
-**DNSE: chưa chạy với tài khoản thật.** Adapter viết theo spec và kiểm tra bằng phản hồi mô phỏng. Rất có thể có khác biệt tương tự. Các lỗi cấu trúc được báo rõ ràng ("phản hồi không đúng cấu trúc dự kiến") thay vì làm sập trang. Giả định hiện tại: tỷ lệ của DNSE là vốn chủ trên giá trị tài sản theo từng Deal.
+**DNSE: đã xác thực với khoá thật ngày 19/10/2026.** Chữ ký HMAC khớp SDK chính thức. Tài khoản lúc đó trống (không có cổ phiếu,
+tiền, nợ), nên phần danh mục và Deal margin vẫn chỉ kiểm tra bằng phản hồi mô phỏng. Hai chỗ khác giả định đã sửa, có test:
+
+- API dữ liệu thị trường trả giá cổ phiếu theo **nghìn đồng** (HPG 20,85), chỉ số theo điểm. App nhân giá cổ phiếu với 1.000.
+- Giá khớp mới nhất có nhiều bảng: G1 lô chẵn, G4 lô lẻ, T1 đến T4 thoả thuận. App chỉ lấy G1.
+
+**DNSE là nguồn giá dự phòng.** Dữ liệu thị trường của DNSE chỉ cần khoá API, không cần OTP và không hết hạn. Khi phiên TCBS hết hạn,
+Sổ danh mục tự lấy giá và nến ngày từ DNSE, nên tỷ lệ ký quỹ, giá gọi ký quỹ, kế hoạch kỹ thuật và bản tin vẫn tính bằng giá thật.
 
 Còn lại cần để ý:
 

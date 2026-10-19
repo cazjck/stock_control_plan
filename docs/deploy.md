@@ -61,6 +61,7 @@ cp deploy/stockctl-backup-pull.* ~/.config/systemd/user/ && systemctl --user dae
 
 ## Lưu ý
 - web-01 và dev-01 mỗi máy một bản dữ liệu. Sau khi chuyển sang web-01, chỉ ghi Sổ danh mục, kế hoạch, quyết định gồng ở web-01.
+- `BROKERS=tcbs,dnse`. DNSE chỉ cần khoá API (trong `.env`), không hết hạn, và là nguồn giá dự phòng khi phiên TCBS hết hạn.
 - Phiên TCBS (JWT) sống khoảng 24 giờ. Khi hết hạn, nhập iOTP lại trên giao diện ở `stock.pdk.one`.
   Trong lúc mất phiên, app dùng giá gần nhất đã biết của từng dòng (ghi lại mỗi lần lấy được giá); dòng chưa từng có giá thì dùng giá mua.
   Tỷ lệ ký quỹ lúc đó có thể lệch, nên đăng nhập lại càng sớm càng tốt.

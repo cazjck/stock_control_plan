@@ -5,6 +5,13 @@ Mọi REST request được ký HMAC-SHA256 (method + path + Date + nonce). Đ�
 trading token nên không cần OTP.
 
 Margin của DNSE là isolated theo Deal (mã + gói vay), nên mỗi Deal có nợ là một MarginBucket.
+
+Đối chiếu với API thật (19/10/2026):
+- Giá cổ phiếu trong API dữ liệu thị trường (/price/...) tính theo NGHÌN đồng (HPG 20.85), chỉ số theo điểm.
+  App dùng đồng, nên giá cổ phiếu được nhân 1.000; chỉ số giữ nguyên.
+- /price/{mã}/trades/latest trả nhiều bảng: G1 lô chẵn, G4 lô lẻ, T1..T4 thoả thuận. Chỉ lấy G1.
+- Dữ liệu thị trường chỉ cần khoá API, không cần OTP và không hết hạn, nên DNSE là nguồn giá dự phòng
+  tốt cho Sổ tổng khi phiên TCBS hết hạn.
 """
 from __future__ import annotations
 
@@ -22,6 +29,15 @@ from ..models import (
 )
 from ..util import now_vn, parse_date, to_float, to_pct, VN_TZ
 from .base import BrokerAdapter, BrokerError, ReadOnlyHttp, parse_guard
+
+MAIN_BOARD = "G1"
+
+
+def to_vnd(x) -> float:
+    """Giá cổ phiếu của DNSE theo nghìn đồng -> đồng. Giá đã theo đồng (≥ 1.000) thì giữ nguyên."""
+    v = to_float(x)
+    return v * 1000 if 0 < v < 1000 else v
+
 
 _RESOLUTION = {Interval.M15: "15", Interval.H1: "1h", Interval.D1: "1D", Interval.W1: "1W"}
 _SECONDS = {Interval.M15: 900, Interval.H1: 3600, Interval.D1: 86400, Interval.W1: 7 * 86400}
@@ -92,10 +108,10 @@ class DnseAdapter(BrokerAdapter):
             qty = int(to_float(p.get("openQuantity")))
             if qty <= 0:
                 continue
-            price = to_float(p.get("marketPrice")) or None
+            price = to_vnd(p.get("marketPrice")) or None
             out.append(Position(
                 broker=self.name, account_id=account_id, symbol=str(p["symbol"]).upper(),
-                quantity=qty, avg_cost=to_float(p.get("costPrice")), price=price,
+                quantity=qty, avg_cost=to_vnd(p.get("costPrice")), price=price,
                 market_value=qty * (price or 0.0), external_id=str(p.get("id")),
                 loan_package_id=p.get("loanPackageId"),
             ))
@@ -174,9 +190,10 @@ class DnseAdapter(BrokerAdapter):
             "resolution": _RESOLUTION[interval], "from": now - span, "to": now,
         }) or {}
         ts, o, h, l, c, v = (data.get(k) or [] for k in ("t", "o", "h", "l", "c", "v"))
+        k = 1.0 if is_index else 1000.0          # cổ phiếu theo nghìn đồng, chỉ số theo điểm
         out = [Candle(t=datetime.fromtimestamp(t, tz=timezone.utc).astimezone(VN_TZ),
-                      open=to_float(o[i]), high=to_float(h[i]), low=to_float(l[i]),
-                      close=to_float(c[i]), volume=to_float(v[i] if i < len(v) else 0))
+                      open=to_float(o[i]) * k, high=to_float(h[i]) * k, low=to_float(l[i]) * k,
+                      close=to_float(c[i]) * k, volume=to_float(v[i] if i < len(v) else 0))
                for i, t in enumerate(ts)]
         out.sort(key=lambda x: x.t)
         return out[-count:]
@@ -190,9 +207,10 @@ class DnseAdapter(BrokerAdapter):
             except BrokerError:
                 continue
             trades = d.get("trades") or []
-            if trades:
-                latest = max(trades, key=lambda t: str(t.get("time") or ""))
-                out[s] = Quote(symbol=s, price=to_float(latest.get("matchPrice")) or None)
+            main = [t for t in trades if t.get("boardId") == MAIN_BOARD] or trades   # lô chẵn, bỏ lô lẻ và thoả thuận
+            if main:
+                latest = max(main, key=lambda t: str(t.get("time") or ""))
+                out[s] = Quote(symbol=s, price=to_vnd(latest.get("matchPrice")) or None)
         return out
 
     async def aclose(self) -> None:

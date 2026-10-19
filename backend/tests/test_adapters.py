@@ -178,7 +178,9 @@ async def test_dnse_ohlc_mapping_and_cash():
         "stock": {"totalCash": 5_000_000, "availableCash": 4_000_000, "totalDebt": 7}}))
     ad = DnseAdapter(api_key="k", api_secret="s", base_url=DNSE, api_version="v")
     cs = await ad.get_candles("FPT", Interval.D1, 10)
-    assert [c.close for c in cs] == [2, 3]                     # đã sắp xếp theo thời gian
+    assert [c.close for c in cs] == [2000, 3000]               # sắp xếp theo thời gian; nghìn đồng -> đồng
+    idx = await ad.get_candles("VNINDEX", Interval.D1, 10, is_index=True)
+    assert [c.close for c in idx] == [2, 3]                    # chỉ số giữ nguyên điểm
     cash = await ad.get_cash("A1")
     assert cash.cash == 5_000_000 and cash.available_cash == 4_000_000
     await ad.aclose()
@@ -265,3 +267,21 @@ async def test_tcbs_other_endpoints_403_still_means_session_expired(tmp_path):
         await ad.get_positions("0001")
     assert not ad.session_info().authenticated
     await ad.aclose()
+
+
+@respx.mock
+async def test_dnse_quote_uses_main_board_and_thousand_vnd():
+    """Theo phản hồi thật: nhiều bảng (G1 lô chẵn, G4 lô lẻ, T1 thoả thuận), giá theo nghìn đồng."""
+    respx.get(f"{DNSE}/price/HPG/trades/latest").mock(return_value=httpx.Response(200, json={"trades": [
+        {"boardId": "G1", "symbol": "HPG", "matchPrice": 20.85, "time": "2026-10-19 13:25:47.996"},
+        {"boardId": "G4", "symbol": "HPG", "matchPrice": 20.9, "time": "2026-10-19 13:26:00.000"},
+        {"boardId": "T1", "symbol": "HPG", "matchPrice": 22.35, "time": "2026-10-19 13:29:56.036"}]}))
+    ad = DnseAdapter(api_key="k", api_secret="s", base_url=DNSE, api_version="v")
+    q = await ad.get_quotes(["HPG"])
+    assert q["HPG"].price == pytest.approx(20_850)
+    await ad.aclose()
+
+
+def test_dnse_to_vnd():
+    from app.brokers.dnse import to_vnd
+    assert to_vnd(20.85) == pytest.approx(20_850) and to_vnd(28_000) == 28_000 and to_vnd(None) == 0
