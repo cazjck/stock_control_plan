@@ -285,3 +285,27 @@ async def test_dnse_quote_uses_main_board_and_thousand_vnd():
 def test_dnse_to_vnd():
     from app.brokers.dnse import to_vnd
     assert to_vnd(20.85) == pytest.approx(20_850) and to_vnd(28_000) == 28_000 and to_vnd(None) == 0
+
+
+@respx.mock
+async def test_dnse_board_from_secdef_book_and_trades():
+    """Cấu trúc thật 19/10/2026: secdef là mảng, quotes/latest và trades/latest có nhiều bảng; giá theo nghìn đồng."""
+    respx.get(f"{DNSE}/price/PDR/secdef").mock(return_value=httpx.Response(200, json=[
+        {"boardId": "G1", "symbol": "PDR", "basicPrice": 11.2, "ceilingPrice": 11.95, "floorPrice": 10.45}]))
+    respx.get(f"{DNSE}/price/PDR/quotes/latest").mock(return_value=httpx.Response(200, json={"quotes": [
+        {"boardId": "G1", "symbol": "PDR", "bid": [{"price": 11.25, "quantity": 11610}, {"price": 11.2, "quantity": 36760}],
+         "offer": [{"price": 11.3, "quantity": 19500}]}]}))
+    respx.get(f"{DNSE}/price/PDR/trades/latest").mock(return_value=httpx.Response(200, json={"trades": [
+        {"boardId": "G1", "matchPrice": 11.25, "matchQtty": 250, "avgPrice": 11.317, "totalVolumeTraded": 279440,
+         "highestPrice": 11.4, "lowestPrice": 11.25, "openPrice": 11.25, "time": "2026-10-19 13:36:48.643"}]}))
+    respx.get(f"{DNSE}/price/ZZZ/secdef").mock(return_value=httpx.Response(404, json={}))
+    respx.get(f"{DNSE}/price/ZZZ/quotes/latest").mock(return_value=httpx.Response(404, json={}))
+    respx.get(f"{DNSE}/price/ZZZ/trades/latest").mock(return_value=httpx.Response(404, json={}))
+    ad = DnseAdapter(api_key="k", api_secret="s", base_url=DNSE, api_version="v")
+    b = await ad.get_board(["PDR", "ZZZ"])
+    q = b["PDR"]
+    assert (q.ref, q.ceil, q.floor, q.price) == (11_200, 11_950, 10_450, 11_250)
+    assert q.change == pytest.approx(50) and q.total_vol == 279_440 and q.high == pytest.approx(11_400)
+    assert [(x.price, x.qty) for x in q.bid] == [(11_250, 11_610), (11_200, 36_760)] and q.offer[0].price == 11_300
+    assert "ZZZ" not in b
+    await ad.aclose()

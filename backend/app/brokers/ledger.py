@@ -39,7 +39,7 @@ class LedgerAdapter(BrokerAdapter):
     def session_info(self) -> SessionInfo:
         src = self._price_source()
         msg = (f"Giá lấy từ {src.display_name}" if src else
-               "Chưa có nguồn giá: đăng nhập TCBS để cập nhật giá. Hiện dùng giá đã ghi trong sổ.")
+               "Chưa có nguồn giá: đăng nhập TCBS hoặc thêm khoá DNSE. Hiện dùng giá đã ghi trong sổ.")
         return SessionInfo(broker=self.name, configured=True, authenticated=True, needs_otp=False, message=msg)
 
     def _scope(self, account_id: str) -> list[LedgerAccount]:
@@ -124,7 +124,7 @@ class LedgerAdapter(BrokerAdapter):
     async def get_candles(self, symbol: str, interval: Interval, count: int, *, is_index: bool = False) -> list[Candle]:
         src = self._price_source()
         if src is None:
-            raise BrokerError("Chưa có nguồn giá cho danh mục tổng. Đăng nhập TCBS để có nến và chỉ báo.")
+            raise BrokerError("Chưa có nguồn giá cho danh mục tổng. Đăng nhập TCBS hoặc thêm khoá DNSE để có nến và chỉ báo.")
         try:
             return await src.get_candles(symbol, interval, count, is_index=is_index)
         except AuthRequired as e:

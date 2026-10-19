@@ -119,7 +119,7 @@ def test_unknown_broker_and_missing_endpoints(client):
 def test_no_write_routes_beyond_bookkeeping(client):
     """Mọi route POST/PUT/DELETE chỉ phục vụ sổ sách của app (cảnh báo, kế hoạch, luật, snapshot, đăng nhập),
     ngoại lệ duy nhất là /api/scenarios/run: POST chỉ vì có thân yêu cầu, chỉ tính toán, không ghi gì."""
-    allowed = ("/api/alerts/", "/api/plans/", "/api/settings/rules", "/api/snapshots/run", "/api/brokers/",
+    allowed = ("/api/alerts/", "/api/plans/", "/api/settings/rules", "/api/settings/data-source", "/api/snapshots/run", "/api/brokers/",
                "/api/scenarios/run",
                "/api/ledger", "/api/lots", "/api/rotations", "/api/holds", "/api/notify/")  # notify: chỉ lưu cấu hình và gửi tin cho chính người dùng  # sổ danh mục tổng: chỉ ghi vào SQLite của ứng dụng; đồng bộ chỉ ĐỌC từ broker
     spec = client.get("/openapi.json").json()

@@ -1,4 +1,9 @@
 export type Severity = "info" | "warning" | "critical";
+export interface DataSourceView {
+  primary: "tcbs" | "dnse"; fallback: boolean; order: string[]; active: string | null; active_label: string | null;
+  sources: { name: "tcbs" | "dnse"; label: string; enabled: boolean; available: boolean; expires_at: string | null;
+    message: string | null; realtime: boolean; note: string }[];
+}
 export interface TelegramStatus {
   configured: boolean; enabled: boolean; token_masked: string | null; chat_id: number | string | null; chat_title: string | null;
   min_severity: Severity; app_url: string | null; brief: boolean; last_sent_at: string | null; last_error: string | null; last_run_at: string | null;
@@ -123,6 +128,8 @@ export const api = {
   holdPut: (s: Sel, body: { symbol: string; reason: string; exit_close_below?: number | null; ratio_floor_pct?: number | null; review_on?: string | null }) =>
     req<HoldDecision>("PUT", `/holds${qs(sel(s))}`, body),
   holdDelete: (id: number) => req<{ ok: boolean }>("DELETE", `/holds/${id}`),
+  dataSource: () => req<DataSourceView>("GET", "/settings/data-source"),
+  setDataSource: (body: { primary: "tcbs" | "dnse"; fallback: boolean }) => req<DataSourceView>("PUT", "/settings/data-source", body),
   notifyStatus: () => req<TelegramStatus>("GET", "/notify/telegram"),
   notifySave: (body: Partial<{ token: string; chat_id: number | string; chat_title: string; enabled: boolean; min_severity: Severity; app_url: string; brief: boolean }>) =>
     req<TelegramStatus>("PUT", "/notify/telegram", body),

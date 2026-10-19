@@ -15,6 +15,7 @@ Margin của DNSE là isolated theo Deal (mã + gói vay), nên mỗi Deal có n
 """
 from __future__ import annotations
 
+import asyncio
 import base64
 import hashlib
 import hmac
@@ -25,7 +26,7 @@ from urllib.parse import quote
 from uuid import uuid4
 
 from ..models import (
-    Account, Candle, CashBalance, Interval, Loan, MarginBucket, Position, Quote, SessionInfo,
+    Account, BoardQuote, BookLevel, Candle, CashBalance, Interval, Loan, MarginBucket, Position, Quote, SessionInfo,
 )
 from ..util import now_vn, parse_date, to_float, to_pct, VN_TZ
 from .base import BrokerAdapter, BrokerError, ReadOnlyHttp, parse_guard
@@ -212,6 +213,45 @@ class DnseAdapter(BrokerAdapter):
                 latest = max(main, key=lambda t: str(t.get("time") or ""))
                 out[s] = Quote(symbol=s, price=to_vnd(latest.get("matchPrice")) or None)
         return out
+
+    async def _board_one(self, s: str) -> BoardQuote | None:
+        """Bảng giá một mã từ ba API của bảng lô chẵn G1: thông tin mã (tham chiếu, trần, sàn),
+        sổ lệnh (ba bước giá) và khớp lệnh mới nhất (giá, cao, thấp, khối lượng)."""
+        p = {"boardId": MAIN_BOARD}
+        sd, qt, tr = await asyncio.gather(self._get(f"/price/{s}/secdef", p), self._get(f"/price/{s}/quotes/latest", p),
+                                          self._get(f"/price/{s}/trades/latest", p), return_exceptions=True)
+        sd = next((x for x in sd if x.get("boardId") == MAIN_BOARD), sd[0] if sd else {}) if isinstance(sd, list) else {}
+        quotes = (qt or {}).get("quotes") if isinstance(qt, dict) else None
+        book = next((x for x in quotes or [] if x.get("boardId") == MAIN_BOARD), (quotes or [{}])[0])
+        trades = (tr or {}).get("trades") if isinstance(tr, dict) else None
+        main = [x for x in trades or [] if x.get("boardId") == MAIN_BOARD] or (trades or [])
+        last = max(main, key=lambda x: str(x.get("time") or "")) if main else {}
+        if not (sd or book or last):
+            return None
+        ref = to_vnd(sd.get("basicPrice")) or None
+        price = to_vnd(last.get("matchPrice")) or None
+        lv = lambda rows: [BookLevel(price=to_vnd(x.get("price")), qty=to_float(x.get("quantity")))   # noqa: E731
+                           for x in (rows or [])[:3] if to_float(x.get("price")) > 0]
+        return BoardQuote(
+            symbol=s, ref=ref, ceil=to_vnd(sd.get("ceilingPrice")) or None, floor=to_vnd(sd.get("floorPrice")) or None,
+            price=price, change=(price - ref) if price and ref else None,
+            change_pct=((price / ref - 1) * 100) if price and ref else None,
+            match_qty=to_float(last.get("matchQtty")) or None, total_vol=to_float(last.get("totalVolumeTraded")) or None,
+            open=to_vnd(last.get("openPrice")) or None, high=to_vnd(last.get("highestPrice")) or None,
+            low=to_vnd(last.get("lowestPrice")) or None, avg=to_vnd(last.get("avgPrice")) or None,
+            bid=lv(book.get("bid")), offer=lv(book.get("offer")))
+
+    @parse_guard
+    async def get_board(self, symbols: list[str]) -> dict[str, BoardQuote]:
+        sem = asyncio.Semaphore(4)
+
+        async def one(s: str):
+            async with sem:
+                try:
+                    return s, await self._board_one(s)
+                except BrokerError:
+                    return s, None
+        return {s: q for s, q in await asyncio.gather(*(one(s) for s in symbols)) if q is not None}
 
     async def aclose(self) -> None:
         await self._http.aclose()

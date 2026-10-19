@@ -159,6 +159,48 @@ async def margin_plan(broker: str | None = None, account: str | None = None, svc
     return build_overview(ctx.margin.buckets, ctx.evals, ctx.margin.loans, ctx.rules, now_vn().date())
 
 
+# ---------- nguồn dữ liệu giá ----------
+
+class DataSourceIn(BaseModel):
+    primary: Literal["tcbs", "dnse"]
+    fallback: bool = True
+
+
+def _data_source_view(svc: PortfolioService, st: Store) -> dict[str, Any]:
+    from ..brokers.registry import parse_pref, source_order
+    pref = parse_pref(st.kv_get("price_source"))
+    ledger = svc.adapters.get("ledger")
+    active = ledger._price_source() if ledger is not None else None  # type: ignore[attr-defined]
+    info = {
+        "tcbs": "Có bảng giá realtime (WebSocket). Cần nhập iOTP, phiên sống khoảng 24 giờ.",
+        "dnse": "Chỉ cần khoá API, không cần OTP, không hết hạn. Bảng giá tự làm mới mỗi 5 giây.",
+    }
+    sources = []
+    for name in ("tcbs", "dnse"):
+        ad = svc.adapters.get(name)
+        si = ad.session_info() if ad else None
+        sources.append({"name": name, "label": ad.display_name if ad else name.upper(), "enabled": ad is not None,
+                        "available": bool(si and si.authenticated), "expires_at": si.expires_at if si else None,
+                        "message": (si.message if si else f"Chưa bật {name} trong BROKERS của backend/.env"),
+                        "realtime": name == "tcbs", "note": info[name]})
+    return {"primary": pref["primary"], "fallback": pref["fallback"], "order": source_order(pref),
+            "active": active.name if active else None, "active_label": active.display_name if active else None,
+            "sources": sources}
+
+
+@router.get("/settings/data-source")
+async def data_source(svc: PortfolioService = Depends(service), st: Store = Depends(store)):
+    """Nguồn giá đang dùng cho Sổ danh mục tổng và lựa chọn của người dùng."""
+    return _data_source_view(svc, st)
+
+
+@router.put("/settings/data-source")
+async def set_data_source(body: DataSourceIn, svc: PortfolioService = Depends(service), st: Store = Depends(store)):
+    st.kv_set("price_source", json.dumps({"primary": body.primary, "fallback": body.fallback}))
+    svc.invalidate()
+    return _data_source_view(svc, st)
+
+
 # ---------- kịch bản giả định và máy tính khối lượng (chỉ tính toán) ----------
 
 @router.get("/pretrade", response_model=PreTradeCheck)

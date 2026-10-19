@@ -95,6 +95,8 @@ tiền, nợ), nên phần danh mục và Deal margin vẫn chỉ kiểm tra b�
 
 **DNSE là nguồn giá dự phòng.** Dữ liệu thị trường của DNSE chỉ cần khoá API, không cần OTP và không hết hạn. Khi phiên TCBS hết hạn,
 Sổ danh mục tự lấy giá và nến ngày từ DNSE, nên tỷ lệ ký quỹ, giá gọi ký quỹ, kế hoạch kỹ thuật và bản tin vẫn tính bằng giá thật.
+Chọn nguồn chính (TCBS hoặc DNSE) và bật hoặc tắt dự phòng ở trang **Thiết lập → Nguồn dữ liệu giá**. Bảng giá lấy từ DNSE có đủ
+trần, sàn, tham chiếu, ba bước giá và khối lượng, làm mới mỗi 5 giây; chỉ TCBS có luồng realtime.
 
 Còn lại cần để ý:
 

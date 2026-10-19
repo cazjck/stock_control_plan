@@ -71,7 +71,7 @@ class TcbsAdapter(BrokerAdapter):
         if not configured:
             msg = "Thiếu TCBS_API_KEY hoặc TCBS_CUSTODY_CODE trong backend/.env"
         elif not valid:
-            msg = "Cần nhập iOTP từ app TCInvest để lấy token (hiệu lực tối đa 8 giờ)"
+            msg = "Cần nhập iOTP từ app TCInvest để lấy token (phiên sống khoảng 24 giờ)"
         return SessionInfo(
             broker=self.name, configured=configured, authenticated=valid,
             needs_otp=configured and not valid, expires_at=self._expires if valid else None,

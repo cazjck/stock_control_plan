@@ -88,7 +88,7 @@ async def lifespan(app: FastAPI):
     rules = RulesService(store)
     ledger = LedgerRepo(store)
     lot_repo = LotRepo(store)
-    adapters = build_adapters(s, ledger)
+    adapters = build_adapters(s, ledger, lambda: store.kv_get("price_source"))
     rotation_repo = RotationRepo(store)
     hold_repo = HoldRepo(store)
     svc = PortfolioService(s, adapters, store, rules, LotService(lot_repo, ledger), rotation_repo, hold_repo)
