@@ -132,11 +132,23 @@ class SpaStaticFiles(StaticFiles):
 
     async def get_response(self, path: str, scope):  # type: ignore[override]
         try:
-            return await super().get_response(path, scope)
+            resp = await super().get_response(path, scope)
         except HTTPException as e:
             if e.status_code == 404 and not path.startswith("api/") and "." not in path.rsplit("/", 1)[-1]:
-                return await super().get_response("index.html", scope)
-            raise
+                resp = await super().get_response("index.html", scope)
+            else:
+                raise
+        return self._cache_headers(path, resp)
+
+    @staticmethod
+    def _cache_headers(path: str, resp):
+        """index.html luôn hỏi lại máy chủ (bản mới hiện ngay sau khi triển khai); file trong assets/ có mã băm
+        trong tên nên lưu đệm lâu dài được."""
+        if path.startswith("assets/"):
+            resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        elif resp.media_type and "html" in resp.media_type:
+            resp.headers["Cache-Control"] = "no-cache"
+        return resp
 
 
 def create_app() -> FastAPI:
